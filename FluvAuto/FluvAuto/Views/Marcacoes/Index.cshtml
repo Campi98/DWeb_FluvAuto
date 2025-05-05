@@ -1,0 +1,71 @@
+﻿@model IEnumerable<FluvAuto.Models.Marcacao>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1>Index</h1>
+
+<p>
+    <a asp-action="Create">Create New</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.DataMarcacaoFeita)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.DataPrevistaInicioServico)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.DataFimServico)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Servico)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Observacoes)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Estado)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Viatura)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.DataMarcacaoFeita)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.DataPrevistaInicioServico)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.DataFimServico)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Servico)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Observacoes)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Estado)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Viatura.Marca)
+            </td>
+            <td>
+                <a asp-action="Edit" asp-route-id="@item.MarcacaoId">Edit</a> |
+                <a asp-action="Details" asp-route-id="@item.MarcacaoId">Details</a> |
+                <a asp-action="Delete" asp-route-id="@item.MarcacaoId">Delete</a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>
