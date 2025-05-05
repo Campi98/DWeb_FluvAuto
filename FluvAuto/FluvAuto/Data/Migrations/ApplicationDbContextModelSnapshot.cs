@@ -59,7 +59,7 @@ namespace FluvAuto.Data.Migrations
 
                     b.HasKey("ClienteId");
 
-                    b.ToTable("Clientes");
+                    b.ToTable("Clientes", (string)null);
                 });
 
             modelBuilder.Entity("FluvAuto.Models.Dados", b =>
@@ -89,7 +89,7 @@ namespace FluvAuto.Data.Migrations
 
                     b.HasIndex("MarcacaoFK");
 
-                    b.ToTable("DadosServicos");
+                    b.ToTable("DadosServicos", (string)null);
                 });
 
             modelBuilder.Entity("FluvAuto.Models.Funcionario", b =>
@@ -122,7 +122,7 @@ namespace FluvAuto.Data.Migrations
 
                     b.HasKey("FuncionarioId");
 
-                    b.ToTable("Funcionarios");
+                    b.ToTable("Funcionarios", (string)null);
                 });
 
             modelBuilder.Entity("FluvAuto.Models.Marcacao", b =>
@@ -161,7 +161,7 @@ namespace FluvAuto.Data.Migrations
 
                     b.HasIndex("ViaturaFK");
 
-                    b.ToTable("Marcacoes");
+                    b.ToTable("Marcacoes", (string)null);
                 });
 
             modelBuilder.Entity("FluvAuto.Models.Viatura", b =>
@@ -197,7 +197,7 @@ namespace FluvAuto.Data.Migrations
 
                     b.HasIndex("ClienteFK");
 
-                    b.ToTable("Viaturas");
+                    b.ToTable("Viaturas", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
