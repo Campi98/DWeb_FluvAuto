@@ -4,6 +4,7 @@ using FluvAuto.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FluvAuto.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250505135501_AddedViaturaProperties")]
+    partial class AddedViaturaProperties
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -57,7 +60,7 @@ namespace FluvAuto.Data.Migrations
 
                     b.HasKey("ClienteId");
 
-                    b.ToTable("Clientes", (string)null);
+                    b.ToTable("Clientes");
                 });
 
             modelBuilder.Entity("FluvAuto.Models.Dados", b =>
@@ -88,7 +91,7 @@ namespace FluvAuto.Data.Migrations
 
                     b.HasIndex("MarcacaoFK");
 
-                    b.ToTable("DadosServicos", (string)null);
+                    b.ToTable("DadosServicos");
                 });
 
             modelBuilder.Entity("FluvAuto.Models.Funcionario", b =>
@@ -121,7 +124,7 @@ namespace FluvAuto.Data.Migrations
 
                     b.HasKey("FuncionarioId");
 
-                    b.ToTable("Funcionarios", (string)null);
+                    b.ToTable("Funcionarios");
                 });
 
             modelBuilder.Entity("FluvAuto.Models.Marcacao", b =>
@@ -156,7 +159,7 @@ namespace FluvAuto.Data.Migrations
 
                     b.HasIndex("ViaturaFK");
 
-                    b.ToTable("Marcacoes", (string)null);
+                    b.ToTable("Marcacoes");
                 });
 
             modelBuilder.Entity("FluvAuto.Models.Viatura", b =>
@@ -207,7 +210,7 @@ namespace FluvAuto.Data.Migrations
 
                     b.HasIndex("ClienteFK");
 
-                    b.ToTable("Viaturas", (string)null);
+                    b.ToTable("Viaturas");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>

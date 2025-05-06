@@ -1,10 +1,10 @@
 ﻿@model FluvAuto.Models.Viatura
 
 @{
-    ViewData["Title"] = "Create";
+    ViewData["Title"] = "Adicionar Viatura";
 }
 
-<h1>Create</h1>
+<h1>Adicionar Viatura</h1>
 
 <h4>Viatura</h4>
 <hr />
@@ -33,8 +33,23 @@
                 <span asp-validation-for="Ano" class="text-danger"></span>
             </div>
             <div class="form-group">
+                <label asp-for="Cor" class="control-label"></label>
+                <input asp-for="Cor" class="form-control" />
+                <span asp-validation-for="Cor" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Combustivel" class="control-label"></label>
+                <input asp-for="Combustivel" class="form-control" />
+                <span asp-validation-for="Combustivel" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Motorizacao" class="control-label"></label>
+                <input asp-for="Motorizacao" class="form-control" />
+                <span asp-validation-for="Motorizacao" class="text-danger"></span>
+            </div>
+            <div class="form-group">
                 <label asp-for="ClienteFK" class="control-label"></label>
-                <select asp-for="ClienteFK" class ="form-control" asp-items="ViewBag.ClienteFK"></select>
+                <select asp-for="ClienteFK" class="form-control" asp-items="ViewBag.ClienteFK"></select>
             </div>
             <div class="form-group">
                 <input type="submit" value="Create" class="btn btn-primary" />
