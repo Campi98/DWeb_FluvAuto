@@ -4,6 +4,7 @@ using FluvAuto.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FluvAuto.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250505135501_AddedViaturaProperties")]
+    partial class AddedViaturaProperties
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -30,23 +33,20 @@ namespace FluvAuto.Data.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ClienteId"));
 
-                    b.Property<string>("CodPostal")
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
                     b.Property<string>("Email")
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
                     b.Property<string>("Morada")
+                        .IsRequired()
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
 
                     b.Property<string>("NIF")
                         .IsRequired()
-                        .HasMaxLength(9)
-                        .HasColumnType("nvarchar(9)");
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
 
                     b.Property<string>("Nome")
                         .IsRequired()
@@ -54,12 +54,13 @@ namespace FluvAuto.Data.Migrations
                         .HasColumnType("nvarchar(100)");
 
                     b.Property<string>("Telefone")
-                        .HasMaxLength(18)
-                        .HasColumnType("nvarchar(18)");
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
 
                     b.HasKey("ClienteId");
 
-                    b.ToTable("Clientes", (string)null);
+                    b.ToTable("Clientes");
                 });
 
             modelBuilder.Entity("FluvAuto.Models.Dados", b =>
@@ -71,6 +72,7 @@ namespace FluvAuto.Data.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("DadosId"));
 
                     b.Property<string>("Comentarios")
+                        .IsRequired()
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
 
@@ -89,7 +91,7 @@ namespace FluvAuto.Data.Migrations
 
                     b.HasIndex("MarcacaoFK");
 
-                    b.ToTable("DadosServicos", (string)null);
+                    b.ToTable("DadosServicos");
                 });
 
             modelBuilder.Entity("FluvAuto.Models.Funcionario", b =>
@@ -122,7 +124,7 @@ namespace FluvAuto.Data.Migrations
 
                     b.HasKey("FuncionarioId");
 
-                    b.ToTable("Funcionarios", (string)null);
+                    b.ToTable("Funcionarios");
                 });
 
             modelBuilder.Entity("FluvAuto.Models.Marcacao", b =>
@@ -133,26 +135,22 @@ namespace FluvAuto.Data.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("MarcacaoId"));
 
-                    b.Property<DateTime?>("DataFimServico")
+                    b.Property<DateTime>("DataMarcacao")
                         .HasColumnType("datetime2");
 
-                    b.Property<DateTime>("DataMarcacaoFeita")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime>("DataPrevistaInicioServico")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Estado")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Observacoes")
+                    b.Property<string>("Descricao")
+                        .IsRequired()
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
 
+                    b.Property<string>("Estado")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("Servico")
                         .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<int>("ViaturaFK")
                         .HasColumnType("int");
@@ -161,7 +159,7 @@ namespace FluvAuto.Data.Migrations
 
                     b.HasIndex("ViaturaFK");
 
-                    b.ToTable("Marcacoes", (string)null);
+                    b.ToTable("Marcacoes");
                 });
 
             modelBuilder.Entity("FluvAuto.Models.Viatura", b =>
@@ -212,7 +210,7 @@ namespace FluvAuto.Data.Migrations
 
                     b.HasIndex("ClienteFK");
 
-                    b.ToTable("Viaturas", (string)null);
+                    b.ToTable("Viaturas");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
