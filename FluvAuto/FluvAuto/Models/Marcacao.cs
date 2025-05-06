@@ -18,36 +18,54 @@ namespace FluvAuto.Models
         /// Data e hora da marcação
         /// </summary>
         [Required]
-        public DateTime DataMarcacao { get; set; }
+        [Display(Name = "Data de Marcação")]
+        public DateTime DataMarcacaoFeita { get; set; }
+
+
+        /// <summary>
+        /// Data e hora prevista para o início do serviço
+        /// </summary>
+        [Display(Name = "Data Prevista para Início")]
+        public DateTime DataPrevistaInicioServico { get; set; }
+
+        /// <summary>
+        /// Data e hora do fim do serviço
+        /// </summary>
+        [Display(Name = "Data de Conclusão")]
+        public DateTime? DataFimServico { get; set; }
 
         /// <summary>
         /// Serviço a ser realizado (ex: troca de óleo, revisão geral, alinhar direção etc.)
         /// </summary>
         [Required]
-        [StringLength(50)]
-        public string Servico { get; set; }         //TODO: isto seria um enum? temos de ter uma tabela intermediária para os serviços?
+        [StringLength(200)]
+        [Display(Name = "Serviço(s)")]
+        public string Servico { get; set; }         //TODO: isto seria só uma textarea? ou uma lista de serviços?
 
         /// <summary>
-        /// Descrição adicional sobre a marcação
+        /// Descrição adicional sobre a marcação, por parte do cliente
         /// </summary>
         [StringLength(500)]
-        public string Descricao { get; set; }       //TODO: isto é quê? melhorar summary
+        [Display(Name = "Observações")]
+        public string Observacoes { get; set; }
 
         /// <summary>
         /// Estado da marcação (ex: Agendada, Em Progresso, Concluída, Cancelada)
         /// </summary>
+        [Display(Name = "Estado")]
         public string Estado { get; set; }
 
         /// <summary>
         /// FK para referenciar a viatura da marcação
         /// </summary>
         [ForeignKey(nameof(Viatura))]
+        [Display(Name = "Viatura")]
         public int ViaturaFK { get; set; }
         public Viatura Viatura { get; set; }
 
         /// <summary>
         /// Lista dos detalhes de serviços associados à marcação
         /// </summary>
-        public ICollection<Dados> DadosServicos { get; set; }
+        public ICollection<Dados> DadosServicos { get; set; }       //TODO: isto existe por causa do DERE que tínhamos anteriormente? VER se é para remover
     }
 }

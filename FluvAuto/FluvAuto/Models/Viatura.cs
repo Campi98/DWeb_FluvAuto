@@ -17,10 +17,9 @@ namespace FluvAuto.Models
         /// <summary>
         /// Marca da viatura
         /// </summary>
-        // TODO: (ErrorMessage = "A {0} é de preenchimento obrigatório") e [Display(Name = "Marca")] e fazer para todos
         [Required]
         [Display(Name = "Marca")]
-        [StringLength(50)]
+        [StringLength(30)]
         public string Marca { get; set; }
 
         /// <summary>
@@ -37,6 +36,9 @@ namespace FluvAuto.Models
         [Required]
         [Display(Name = "Matrícula")]
         [StringLength(20)]
+        [RegularExpression(
+            @"^(([A-Z]{2}-[A-Z]{2}-[0-9]{2})|([0-9]{2}-[0-9]{2}-[A-Z]{2})|([A-Z]{2}-[0-9]{2}-[A-Z]{2})|([0-9]{2}-[A-Z]{2}-[0-9]{2})|([A-Z]{2}-[0-9]{2}-[0-9]{2})|([0-9]{2}-[A-Z]{2}-[A-Z]{2}))$",
+            ErrorMessage = "A matrícula deve ter o formato XX-YY-ZZ, com máximo de 4 letras e 2 números ou 4 números e 2 letras.")]
         public string Matricula { get; set; }
 
         /// <summary>
@@ -63,9 +65,9 @@ namespace FluvAuto.Models
         /// Tipo de combustível da viatura
         /// </summary>
         [Required]
-        [StringLength(20)]
-        [RegularExpression("^(Gasolina|Diesel|Eletrico|Hibrido|GPL)$",
-            ErrorMessage = "O combustível deve ser Gasolina, Diesel, GPL, Eletrico ou Hibrido")]
+        [Display(Name = "Combustível")]
+        [RegularExpression("^(Gasolina|Diesel|Elétrico|Híbrido|GPL)$",
+            ErrorMessage = "O combustível deve ser Gasolina, Diesel, GPL, Elétrico ou Híbrido")]
         public string Combustivel { get; set; }
 
         /// <summary>
