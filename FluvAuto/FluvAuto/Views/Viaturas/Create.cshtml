@@ -39,7 +39,13 @@
             </div>
             <div class="form-group">
                 <label asp-for="Combustivel" class="control-label"></label>
-                <input asp-for="Combustivel" class="form-control" />
+                <select asp-for="Combustivel" class="form-control">
+                <option value="Gasolina">Gasolina</option>
+                <option value="Diesel">Diesel</option>
+                <option value="Eletrico">Elétrico</option>
+                <option value="Hibrido">Híbrido</option>
+                <option value="GPL">GPL</option>
+                </select>
                 <span asp-validation-for="Combustivel" class="text-danger"></span>
             </div>
             <div class="form-group">

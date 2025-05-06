@@ -60,11 +60,12 @@ namespace FluvAuto.Models
         public string Cor { get; set; }
 
         /// <summary>
-        /// Tipo de combustível utilizado pela viatura
+        /// Tipo de combustível da viatura
         /// </summary>
         [Required]
-        [Display(Name = "Combustível")]
         [StringLength(20)]
+        [RegularExpression("^(Gasolina|Diesel|Eletrico|Hibrido|GPL)$",
+            ErrorMessage = "O combustível deve ser Gasolina, Diesel, GPL, Eletrico ou Hibrido")]
         public string Combustivel { get; set; }
 
         /// <summary>
