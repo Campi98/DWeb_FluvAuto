@@ -58,7 +58,7 @@ namespace FluvAuto.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("ViaturaId,Marca,Modelo,Matricula,Ano,ClienteFK")] Viatura viatura)
+        public async Task<IActionResult> Create([Bind("ViaturaId,Marca,Modelo,Matricula,Ano,Cor,Combustivel,Motorizacao,ClienteFK")] Viatura viatura)
         {
             if (ModelState.IsValid)
             {
@@ -92,7 +92,7 @@ namespace FluvAuto.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("ViaturaId,Marca,Modelo,Matricula,Ano,ClienteFK")] Viatura viatura)
+        public async Task<IActionResult> Edit(int id, [Bind("ViaturaId,Marca,Modelo,Matricula,Ano,Cor,Combustivel,Motorizacao,ClienteFK")] Viatura viatura)
         {
             if (id != viatura.ViaturaId)
             {
