@@ -37,7 +37,8 @@ namespace FluvAuto.Controllers
             var dados = await _context.DadosServicos
                 .Include(d => d.Funcionario)
                 .Include(d => d.Marcacao)
-                .FirstOrDefaultAsync(m => m.DadosId == id);
+                .Where(d => d.FuncionarioFK == id)
+                .FirstOrDefaultAsync();
             if (dados == null)
             {
                 return NotFound();
@@ -59,7 +60,7 @@ namespace FluvAuto.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("DadosId,HorasGastas,Comentarios,MarcacaoFK,FuncionarioFK")] Dados dados)
+        public async Task<IActionResult> Create([Bind("DadosId,HorasGastas,Comentarios,MarcacaoFK,FuncionarioFK")] FuncionariosMarcacoes dados)
         {
             if (ModelState.IsValid)
             {
@@ -95,7 +96,7 @@ namespace FluvAuto.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("DadosId,HorasGastas,Comentarios,MarcacaoFK,FuncionarioFK")] Dados dados)
+        public async Task<IActionResult> Edit(int id, [Bind("DadosId,HorasGastas,Comentarios,MarcacaoFK,FuncionarioFK")] FuncionariosMarcacoes dados)
         {
             if (id != dados.DadosId)
             {

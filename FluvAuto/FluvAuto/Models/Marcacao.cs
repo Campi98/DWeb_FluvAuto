@@ -66,6 +66,6 @@ namespace FluvAuto.Models
         /// <summary>
         /// Lista dos detalhes de serviços associados à marcação
         /// </summary>
-        public ICollection<Dados> DadosServicos { get; set; }       //TODO: isto existe por causa do DERE que tínhamos anteriormente? VER se é para remover
+        public ICollection<FuncionariosMarcacoes> DadosServicos { get; set; }       //TODO: isto existe por causa do DERE que tínhamos anteriormente? VER se é para remover
     }
 }

@@ -24,7 +24,7 @@ public class ApplicationDbContext : IdentityDbContext
     /// <summary>
     /// Tabela que representa os serviços realizados na oficina
     /// </summary>
-    public DbSet<Dados> DadosServicos { get; set; }
+    public DbSet<FuncionariosMarcacoes> DadosServicos { get; set; }
     /// <summary>
     /// Tabela que representa os funcionários da oficina
     /// </summary>

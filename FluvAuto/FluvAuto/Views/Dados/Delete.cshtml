@@ -1,4 +1,4 @@
-﻿@model FluvAuto.Models.Dados
+﻿@model FluvAuto.Models.FuncionariosMarcacoes
 
 @{
     ViewData["Title"] = "Delete";
@@ -21,19 +21,19 @@
             @Html.DisplayNameFor(model => model.Comentarios)
         </dt>
         <dd class = "col-sm-10">
+            @Html.DisplayNameFor(model => model.Comentarios)
+        </dd>
+        <dt class = "col-sm-2">
             @Html.DisplayFor(model => model.Comentarios)
-        </dd>
-        <dt class = "col-sm-2">
+        </dt>
+        <dd class = "col-sm-10">
             @Html.DisplayNameFor(model => model.Marcacao)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Marcacao.Servico)
         </dd>
         <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Funcionario)
+            @Html.DisplayFor(model => model.Marcacao.Servico)
         </dt>
         <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Funcionario.Email)
+            @Html.DisplayNameFor(model => model.Funcionario)
         </dd>
     </dl>
     

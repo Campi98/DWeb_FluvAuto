@@ -34,7 +34,7 @@ namespace FluvAuto.Models
         /// Matrícula da viatura
         /// </summary>
         [Required]
-        [Display(Name = "Matrícula")]
+        [Display(Name = "Matrícula")]       //TODO: Permitir introdução de letras minúsculas também
         [StringLength(20)]
         [RegularExpression(
             @"^(([A-Z]{2}-[A-Z]{2}-[0-9]{2})|([0-9]{2}-[0-9]{2}-[A-Z]{2})|([A-Z]{2}-[0-9]{2}-[A-Z]{2})|([0-9]{2}-[A-Z]{2}-[0-9]{2})|([A-Z]{2}-[0-9]{2}-[0-9]{2})|([0-9]{2}-[A-Z]{2}-[A-Z]{2}))$",
