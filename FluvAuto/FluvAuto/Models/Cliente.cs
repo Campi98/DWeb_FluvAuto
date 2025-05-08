@@ -10,8 +10,8 @@ namespace FluvAuto.Models
         /// <summary>
         /// Identificador único do cliente
         /// </summary>
-        [Key]
-        public int ClienteId { get; set; }
+        //[Key]
+        //public int ClienteId { get; set; }
 
         /// <summary>
         /// Número de Identificação Fiscal (NIF) do cliente

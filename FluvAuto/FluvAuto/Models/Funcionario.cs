@@ -10,8 +10,8 @@ namespace FluvAuto.Models
         /// <summary>
         /// Identificador único do funcionário
         /// </summary>
-        [Key]
-        public int FuncionarioId { get; set; }
+        //[Key]
+        //public int FuncionarioId { get; set; }
 
         /// <summary>
         /// Função do funcionário na empresa/oficina (Mecânico, Rececionista, etc.)

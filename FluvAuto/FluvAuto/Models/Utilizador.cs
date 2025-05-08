@@ -11,7 +11,7 @@ namespace FluvAuto.Models
         /// Identificador único do Utilizador
         /// </summary>
         [Key]
-        public int Id { get; set; }
+        public int UtilizadorId { get; set; }
 
 
         public string UserName { get; set; }      // ligação identity - local
