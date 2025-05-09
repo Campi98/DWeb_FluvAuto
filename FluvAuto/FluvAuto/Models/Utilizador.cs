@@ -37,6 +37,7 @@ namespace FluvAuto.Models
         /// Número de telefone do utilizador
         /// </summary>
         //[Phone(ErrorMessage = "Introduza um número de {0} válido.")]             TODO: podemos usar isto?
+        [Required(ErrorMessage = "O {0} é de preenchimento obrigatório.")]
         [Display(Name = "Telemóvel")]
         [StringLength(18)]
         [RegularExpression("(([+]|00)[0-9]{1,5})?[1-9][0-9]{5,10}", ErrorMessage = "Escreva um nº de telefone. Pode adicionar indicativo do país.")]
@@ -49,16 +50,16 @@ namespace FluvAuto.Models
         /// Morada do utilizador
         /// </summary>
         [StringLength(200)]
-        [Display(Name = "Morada")]
-        public string Morada { get; set; }
+        [Display(Name = "Morada (opcional)")]
+        public string? Morada { get; set; }
 
         /// <summary>
         /// Código Postal da morada do utilizador
         /// </summary>
-        [Display(Name = "Código Postal")]
+        [Display(Name = "Código Postal (opcional)")]
         [StringLength(50)]
         [RegularExpression("[1-9][0-9]{3}-[0-9]{3} [A-Za-z ]+", ErrorMessage = "No {0} só são aceites algarismos e letras inglesas.")]
-        public string CodPostal { get; set; }
+        public string? CodPostal { get; set; }
         /* exemplo de exp. regulares sobre o Código Postal
          * [1-9][0-9]{3}-[0-9]{3} [A-Za-z ]+  --> Portugal
          * [1-9][0-9]{3,4}-[0-9]{3,4}( [A-Za-z ]*)?  --> fora de Portugal

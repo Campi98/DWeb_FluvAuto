@@ -17,7 +17,7 @@ namespace FluvAuto.Models
         /// <summary>
         /// Marca da viatura
         /// </summary>
-        [Required]
+        [Required(ErrorMessage = "A {0} é de preenchimento obrigatório.")]
         [Display(Name = "Marca")]
         [StringLength(30)]
         public string Marca { get; set; }
@@ -25,7 +25,7 @@ namespace FluvAuto.Models
         /// <summary>
         /// Modelo da viatura
         /// </summary>
-        [Required]
+        [Required(ErrorMessage = "O {0} é de preenchimento obrigatório.")]
         [Display(Name = "Modelo")]
         [StringLength(50)]
         public string Modelo { get; set; }
@@ -33,11 +33,16 @@ namespace FluvAuto.Models
         /// <summary>
         /// Matrícula da viatura
         /// </summary>
-        [Required]
-        [Display(Name = "Matrícula")]       //TODO: Permitir introdução de letras minúsculas também
+        [Required(ErrorMessage = "A {0} é de preenchimento obrigatório.")]
+        [Display(Name = "Matrícula")]
         [StringLength(20)]
-        [RegularExpression(
-            @"^(([A-Z]{2}-[A-Z]{2}-[0-9]{2})|([0-9]{2}-[0-9]{2}-[A-Z]{2})|([A-Z]{2}-[0-9]{2}-[A-Z]{2})|([0-9]{2}-[A-Z]{2}-[0-9]{2})|([A-Z]{2}-[0-9]{2}-[0-9]{2})|([0-9]{2}-[A-Z]{2}-[A-Z]{2}))$",
+        [RegularExpression(@"^(
+            ([A-Za-z]{2}-[A-Za-z]{2}-[0-9]{2})|
+            ([0-9]{2}-[0-9]{2}-[A-Za-z]{2})|
+            ([A-Za-z]{2}-[0-9]{2}-[A-Za-z]{2})|
+            ([0-9]{2}-[A-Za-z]{2}-[0-9]{2})|
+            ([A-Za-z]{2}-[0-9]{2}-[0-9]{2})|
+            ([0-9]{2}-[A-Za-z]{2}-[A-Za-z]{2}))$",
             ErrorMessage = "A matrícula deve ter o formato XX-YY-ZZ, com máximo de 4 letras e 2 números ou 4 números e 2 letras.")]
         public string Matricula { get; set; }
 
@@ -50,13 +55,9 @@ namespace FluvAuto.Models
         public int Ano { get; set; }
 
         /// <summary>
-        /// Lista de marcações associadas à viatura
-        /// </summary>
-        public ICollection<Marcacao> Marcacoes { get; set; }
-        /// <summary>
         /// Cor da viatura
         /// </summary>
-        [Required]
+        [Required(ErrorMessage = "A {0} é de preenchimento obrigatório.")]
         [Display(Name = "Cor")]
         [StringLength(30)]
         public string Cor { get; set; }
@@ -64,7 +65,7 @@ namespace FluvAuto.Models
         /// <summary>
         /// Tipo de combustível da viatura
         /// </summary>
-        [Required]
+        [Required(ErrorMessage = "O {0} é de preenchimento obrigatório.")]
         [Display(Name = "Combustível")]
         [RegularExpression("^(Gasolina|Diesel|Elétrico|Híbrido|GPL)$",
             ErrorMessage = "O combustível deve ser Gasolina, Diesel, GPL, Elétrico ou Híbrido")]
@@ -73,7 +74,7 @@ namespace FluvAuto.Models
         /// <summary>
         /// Motorização da viatura
         /// </summary>
-        [Required]
+        [Required(ErrorMessage = "A {0} é de preenchimento obrigatório.")]
         [Display(Name = "Motorização")]
         [StringLength(50)]
         public string Motorizacao { get; set; }
@@ -85,6 +86,11 @@ namespace FluvAuto.Models
         [Display(Name = "Cliente")]
         public int ClienteFK { get; set; }
         public Cliente Cliente { get; set; }
+
+        /// <summary>
+        /// Lista de marcações associadas à viatura
+        /// </summary>
+        public ICollection<Marcacao> Marcacoes { get; set; }
     }
 
     /// <summary>

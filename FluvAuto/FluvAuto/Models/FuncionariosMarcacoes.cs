@@ -18,7 +18,7 @@ namespace FluvAuto.Models
         /// <summary>
         /// Horas gastas para realizar o serviço
         /// </summary>
-        [Required]
+        [Required(ErrorMessage = "As {0} são de preenchimento obrigatório.")]
         [Display(Name = "Horas Gastas")]
         public decimal HorasGastas { get; set; }
 
@@ -26,13 +26,13 @@ namespace FluvAuto.Models
         /// Comentários adicionais sobre o serviço / notas do mecânico
         /// </summary>
         [StringLength(500)]
-        [Display(Name = "Comentários")]
+        [Display(Name = "Comentários (opcional)")]
         public string Comentarios { get; set; }
 
         /// <summary>
         /// Data e hora do ínicio do serviço
         /// </summary>
-        [Required]
+        [Required(ErrorMessage = "A {0} é de preenchimento obrigatório.")]
         [Display(Name = "Data de Início do Serviço")]
         public DateTime DataInicioServico { get; set; }
 

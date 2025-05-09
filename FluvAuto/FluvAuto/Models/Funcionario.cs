@@ -16,13 +16,15 @@ namespace FluvAuto.Models
         /// <summary>
         /// Função do funcionário na empresa/oficina (Mecânico, Rececionista, etc.)
         /// </summary>
-        [Required]
+        [Required(ErrorMessage = "O {0} é de preenchimento obrigatório.")]
         [StringLength(50)]
+        [Display(Name = "Função")]
         public string Funcao { get; set; }
 
         /// <summary>
         /// Fotografia do funcionário
         /// </summary>
+        [Display(Name = "Fotografia (opcional)")]
         public string Fotografia { get; set; }
 
         /// <summary>
