@@ -14,6 +14,14 @@ builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.Requ
     .AddEntityFrameworkStores<ApplicationDbContext>();
 builder.Services.AddControllersWithViews();
 
+// Cookie related
+builder.Services.AddSession(options => {
+    options.IdleTimeout = TimeSpan.FromSeconds(60); //TODO: em prod, mudar isto para FromMinutes(20)
+    options.Cookie.HttpOnly = true;
+    options.Cookie.IsEssential = true;
+});
+builder.Services.AddDistributedMemoryCache();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -34,6 +42,8 @@ app.UseStaticFiles();
 app.UseRouting();
 
 app.UseAuthorization();
+
+app.UseSession();   // isto faz os cookies "correr"/funcionar
 
 app.MapControllerRoute(
     name: "default",
