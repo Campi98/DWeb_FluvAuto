@@ -5,47 +5,31 @@ namespace FluvAuto.Models
     /// <summary>
     /// Classe que representa um funcionário da oficina
     /// </summary>
-    public class Funcionario
+    public class Funcionario : Utilizador
     {
         /// <summary>
         /// Identificador único do funcionário
         /// </summary>
-        [Key]
-        public int FuncionarioId { get; set; }
-
-        /// <summary>
-        /// Nome do funcionário
-        /// </summary>
-        [Required]
-        [StringLength(100)]
-        public string Nome { get; set; }
+        //[Key]
+        //public int FuncionarioId { get; set; }
 
         /// <summary>
         /// Função do funcionário na empresa/oficina (Mecânico, Rececionista, etc.)
         /// </summary>
-        [Required]
+        [Required(ErrorMessage = "O {0} é de preenchimento obrigatório.")]
         [StringLength(50)]
+        [Display(Name = "Função")]
         public string Funcao { get; set; }
 
         /// <summary>
-        /// Email do funcionário
+        /// Fotografia do funcionário
         /// </summary>
-        [Required]
-        [StringLength(100)]
-        //[EmailAddress]
-        public string Email { get; set; }
-
-        /// <summary>
-        /// Número de telefone do funcionário
-        /// </summary>
-        [Required]
-        [StringLength(20)]
-        [Phone]
-        public string Telefone { get; set; }
+        [Display(Name = "Fotografia (opcional)")]
+        public string Fotografia { get; set; }
 
         /// <summary>
         /// Lista dos serviços realizados pelo funcionário
         /// </summary>
-        public ICollection<Dados> ServicosRealizados { get; set; }
+        public ICollection<FuncionariosMarcacoes> ServicosRealizados { get; set; }
     }
 }

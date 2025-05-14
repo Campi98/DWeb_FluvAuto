@@ -1,22 +1,24 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.EntityFrameworkCore;
 
 namespace FluvAuto.Models
 {
     /// <summary>
     /// Classe que representa os dados de um serviço realizado
     /// </summary>
-    public class Dados
+    [PrimaryKey(nameof(MarcacaoFK),nameof(FuncionarioFK))]
+    public class FuncionariosMarcacoes
     {
         /// <summary>
         /// Identificador único dos dados do serviço
         /// </summary>
-        public int DadosId { get; set; }            //TODO: ver como tratar as [Key]s - se será uma composta das duas FKs ou se será só um ID
+       // public int DadosId { get; set; }            //TODO: ver como tratar as [Key]s - se será uma composta das duas FKs ou se será só um ID
 
         /// <summary>
         /// Horas gastas para realizar o serviço
         /// </summary>
-        [Required]
+        [Required(ErrorMessage = "As {0} são de preenchimento obrigatório.")]
         [Display(Name = "Horas Gastas")]
         public decimal HorasGastas { get; set; }
 
@@ -24,8 +26,15 @@ namespace FluvAuto.Models
         /// Comentários adicionais sobre o serviço / notas do mecânico
         /// </summary>
         [StringLength(500)]
-        [Display(Name = "Comentários")]
+        [Display(Name = "Comentários (opcional)")]
         public string Comentarios { get; set; }
+
+        /// <summary>
+        /// Data e hora do ínicio do serviço
+        /// </summary>
+        [Required(ErrorMessage = "A {0} é de preenchimento obrigatório.")]
+        [Display(Name = "Data de Início do Serviço")]
+        public DateTime DataInicioServico { get; set; }
 
         /// <summary>
         /// FK para referenciar a marcação do serviço

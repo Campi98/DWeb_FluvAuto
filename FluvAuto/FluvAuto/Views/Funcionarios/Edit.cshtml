@@ -1,4 +1,4 @@
-﻿@model FluvAuto.Models.Cliente
+﻿@model FluvAuto.Models.Funcionario
 
 @{
     ViewData["Title"] = "Edit";
@@ -6,16 +6,21 @@
 
 <h1>Edit</h1>
 
-<h4>Cliente</h4>
+<h4>Funcionario</h4>
 <hr />
 <div class="row">
     <div class="col-md-4">
         <form asp-action="Edit">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <div class="form-group">
-                <label asp-for="NIF" class="control-label"></label>
-                <input asp-for="NIF" class="form-control" />
-                <span asp-validation-for="NIF" class="text-danger"></span>
+                <label asp-for="Funcao" class="control-label"></label>
+                <input asp-for="Funcao" class="form-control" />
+                <span asp-validation-for="Funcao" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Fotografia" class="control-label"></label>
+                <input asp-for="Fotografia" class="form-control" />
+                <span asp-validation-for="Fotografia" class="text-danger"></span>
             </div>
             <input type="hidden" asp-for="UtilizadorId" />
             <div class="form-group">

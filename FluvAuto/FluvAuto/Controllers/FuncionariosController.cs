@@ -10,23 +10,22 @@ using FluvAuto.Models;
 
 namespace FluvAuto.Controllers
 {
-    public class ViaturasController : Controller
+    public class FuncionariosController : Controller
     {
         private readonly ApplicationDbContext _context;
 
-        public ViaturasController(ApplicationDbContext context)
+        public FuncionariosController(ApplicationDbContext context)
         {
             _context = context;
         }
 
-        // GET: Viaturas
+        // GET: Funcionarios
         public async Task<IActionResult> Index()
         {
-            var applicationDbContext = _context.Viaturas.Include(v => v.Cliente);
-            return View(await applicationDbContext.ToListAsync());
+            return View(await _context.Funcionarios.ToListAsync());
         }
 
-        // GET: Viaturas/Details/5
+        // GET: Funcionarios/Details/5
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -34,42 +33,39 @@ namespace FluvAuto.Controllers
                 return NotFound();
             }
 
-            var viatura = await _context.Viaturas
-                .Include(v => v.Cliente)
-                .FirstOrDefaultAsync(m => m.ViaturaId == id);
-            if (viatura == null)
+            var funcionario = await _context.Funcionarios
+                .FirstOrDefaultAsync(m => m.UtilizadorId == id);
+            if (funcionario == null)
             {
                 return NotFound();
             }
 
-            return View(viatura);
+            return View(funcionario);
         }
 
-        // GET: Viaturas/Create
+        // GET: Funcionarios/Create
         public IActionResult Create()
         {
-            ViewData["ClienteFK"] = new SelectList(_context.Clientes, "UtilizadorId", "Email");
             return View();
         }
 
-        // POST: Viaturas/Create
+        // POST: Funcionarios/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("ViaturaId,Marca,Modelo,Matricula,Ano,Cor,Combustivel,Motorizacao,ClienteFK")] Viatura viatura)
+        public async Task<IActionResult> Create([Bind("Funcao,Fotografia,UtilizadorId,UserName,Nome,Email,Telefone,Morada,CodPostal")] Funcionario funcionario)
         {
             if (ModelState.IsValid)
             {
-                _context.Add(viatura);
+                _context.Add(funcionario);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["ClienteFK"] = new SelectList(_context.Clientes, "UtilizadorId", "Email", viatura.ClienteFK);
-            return View(viatura);
+            return View(funcionario);
         }
 
-        // GET: Viaturas/Edit/5
+        // GET: Funcionarios/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -77,23 +73,22 @@ namespace FluvAuto.Controllers
                 return NotFound();
             }
 
-            var viatura = await _context.Viaturas.FindAsync(id);
-            if (viatura == null)
+            var funcionario = await _context.Funcionarios.FindAsync(id);
+            if (funcionario == null)
             {
                 return NotFound();
             }
-            ViewData["ClienteFK"] = new SelectList(_context.Clientes, "UtilizadorId", "Email", viatura.ClienteFK);
-            return View(viatura);
+            return View(funcionario);
         }
 
-        // POST: Viaturas/Edit/5
+        // POST: Funcionarios/Edit/5
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("ViaturaId,Marca,Modelo,Matricula,Ano,Cor,Combustivel,Motorizacao,ClienteFK")] Viatura viatura)
+        public async Task<IActionResult> Edit(int id, [Bind("Funcao,Fotografia,UtilizadorId,UserName,Nome,Email,Telefone,Morada,CodPostal")] Funcionario funcionario)
         {
-            if (id != viatura.ViaturaId)
+            if (id != funcionario.UtilizadorId)
             {
                 return NotFound();
             }
@@ -102,12 +97,12 @@ namespace FluvAuto.Controllers
             {
                 try
                 {
-                    _context.Update(viatura);
+                    _context.Update(funcionario);
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!ViaturaExists(viatura.ViaturaId))
+                    if (!FuncionarioExists(funcionario.UtilizadorId))
                     {
                         return NotFound();
                     }
@@ -118,11 +113,10 @@ namespace FluvAuto.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["ClienteFK"] = new SelectList(_context.Clientes, "UtilizadorId", "Email", viatura.ClienteFK);
-            return View(viatura);
+            return View(funcionario);
         }
 
-        // GET: Viaturas/Delete/5
+        // GET: Funcionarios/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -130,35 +124,34 @@ namespace FluvAuto.Controllers
                 return NotFound();
             }
 
-            var viatura = await _context.Viaturas
-                .Include(v => v.Cliente)
-                .FirstOrDefaultAsync(m => m.ViaturaId == id);
-            if (viatura == null)
+            var funcionario = await _context.Funcionarios
+                .FirstOrDefaultAsync(m => m.UtilizadorId == id);
+            if (funcionario == null)
             {
                 return NotFound();
             }
 
-            return View(viatura);
+            return View(funcionario);
         }
 
-        // POST: Viaturas/Delete/5
+        // POST: Funcionarios/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var viatura = await _context.Viaturas.FindAsync(id);
-            if (viatura != null)
+            var funcionario = await _context.Funcionarios.FindAsync(id);
+            if (funcionario != null)
             {
-                _context.Viaturas.Remove(viatura);
+                _context.Funcionarios.Remove(funcionario);
             }
 
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
-        private bool ViaturaExists(int id)
+        private bool FuncionarioExists(int id)
         {
-            return _context.Viaturas.Any(e => e.ViaturaId == id);
+            return _context.Funcionarios.Any(e => e.UtilizadorId == id);
         }
     }
 }

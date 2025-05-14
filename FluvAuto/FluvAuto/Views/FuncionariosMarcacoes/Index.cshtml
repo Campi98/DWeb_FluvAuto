@@ -1,4 +1,4 @@
-﻿@model IEnumerable<FluvAuto.Models.Dados>
+﻿@model IEnumerable<FluvAuto.Models.FuncionariosMarcacoes>
 
 @{
     ViewData["Title"] = "Index";
@@ -19,6 +19,9 @@
                 @Html.DisplayNameFor(model => model.Comentarios)
             </th>
             <th>
+                @Html.DisplayNameFor(model => model.DataInicioServico)
+            </th>
+            <th>
                 @Html.DisplayNameFor(model => model.Marcacao)
             </th>
             <th>
@@ -37,15 +40,18 @@
                 @Html.DisplayFor(modelItem => item.Comentarios)
             </td>
             <td>
+                @Html.DisplayFor(modelItem => item.DataInicioServico)
+            </td>
+            <td>
                 @Html.DisplayFor(modelItem => item.Marcacao.Servico)
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.Funcionario.Email)
             </td>
             <td>
-                <a asp-action="Edit" asp-route-id="@item.DadosId">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.DadosId">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.DadosId">Delete</a>
+                @Html.ActionLink("Edit", "Edit", new { /* id=item.PrimaryKey */ }) |
+                @Html.ActionLink("Details", "Details", new { /* id=item.PrimaryKey */ }) |
+                @Html.ActionLink("Delete", "Delete", new { /* id=item.PrimaryKey */ })
             </td>
         </tr>
 }

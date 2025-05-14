@@ -14,9 +14,6 @@ namespace FluvAuto.Controllers
     {
         private readonly ApplicationDbContext _context;
 
-        // TODO: DÚVIDA!!! - Como as tabelas estão no singular, devemos usar o quê na classe? Plural como na AppFotos?
-        // por causa daquilo que o professor fez, ao mudar, por exemplo, o parâmetro 'categorias' para 'categoria', por ser um objeto individual
-
         public ClientesController(ApplicationDbContext context)
         {
             _context = context;
@@ -37,7 +34,7 @@ namespace FluvAuto.Controllers
             }
 
             var cliente = await _context.Clientes
-                .FirstOrDefaultAsync(m => m.ClienteId == id);
+                .FirstOrDefaultAsync(m => m.UtilizadorId == id);
             if (cliente == null)
             {
                 return NotFound();
@@ -57,7 +54,7 @@ namespace FluvAuto.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("ClienteId,Nome,Email,Telefone,Morada,NIF")] Cliente cliente)
+        public async Task<IActionResult> Create([Bind("NIF,UtilizadorId,UserName,Nome,Email,Telefone,Morada,CodPostal")] Cliente cliente)
         {
             if (ModelState.IsValid)
             {
@@ -89,9 +86,9 @@ namespace FluvAuto.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("ClienteId,Nome,Email,Telefone,Morada,NIF")] Cliente cliente)
+        public async Task<IActionResult> Edit(int id, [Bind("NIF,UtilizadorId,UserName,Nome,Email,Telefone,Morada,CodPostal")] Cliente cliente)
         {
-            if (id != cliente.ClienteId)
+            if (id != cliente.UtilizadorId)
             {
                 return NotFound();
             }
@@ -105,7 +102,7 @@ namespace FluvAuto.Controllers
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!ClienteExists(cliente.ClienteId))
+                    if (!ClienteExists(cliente.UtilizadorId))
                     {
                         return NotFound();
                     }
@@ -128,7 +125,7 @@ namespace FluvAuto.Controllers
             }
 
             var cliente = await _context.Clientes
-                .FirstOrDefaultAsync(m => m.ClienteId == id);
+                .FirstOrDefaultAsync(m => m.UtilizadorId == id);
             if (cliente == null)
             {
                 return NotFound();
@@ -154,7 +151,7 @@ namespace FluvAuto.Controllers
 
         private bool ClienteExists(int id)
         {
-            return _context.Clientes.Any(e => e.ClienteId == id);
+            return _context.Clientes.Any(e => e.UtilizadorId == id);
         }
     }
 }

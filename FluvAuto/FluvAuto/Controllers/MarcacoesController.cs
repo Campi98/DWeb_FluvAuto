@@ -48,7 +48,7 @@ namespace FluvAuto.Controllers
         // GET: Marcacoes/Create
         public IActionResult Create()
         {
-            ViewData["ViaturaFK"] = new SelectList(_context.Viaturas, "ViaturaId", "Marca");
+            ViewData["ViaturaFK"] = new SelectList(_context.Viaturas, "ViaturaId", "Combustivel");
             return View();
         }
 
@@ -65,7 +65,7 @@ namespace FluvAuto.Controllers
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["ViaturaFK"] = new SelectList(_context.Viaturas, "ViaturaId", "Marca", marcacao.ViaturaFK);
+            ViewData["ViaturaFK"] = new SelectList(_context.Viaturas, "ViaturaId", "Combustivel", marcacao.ViaturaFK);
             return View(marcacao);
         }
 
@@ -82,7 +82,7 @@ namespace FluvAuto.Controllers
             {
                 return NotFound();
             }
-            ViewData["ViaturaFK"] = new SelectList(_context.Viaturas, "ViaturaId", "Marca", marcacao.ViaturaFK);
+            ViewData["ViaturaFK"] = new SelectList(_context.Viaturas, "ViaturaId", "Combustivel", marcacao.ViaturaFK);
             return View(marcacao);
         }
 
@@ -118,7 +118,7 @@ namespace FluvAuto.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["ViaturaFK"] = new SelectList(_context.Viaturas, "ViaturaId", "Marca", marcacao.ViaturaFK);
+            ViewData["ViaturaFK"] = new SelectList(_context.Viaturas, "ViaturaId", "Combustivel", marcacao.ViaturaFK);
             return View(marcacao);
         }
 

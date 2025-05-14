@@ -1,4 +1,4 @@
-﻿@model IEnumerable<FluvAuto.Models.Cliente>
+﻿@model IEnumerable<FluvAuto.Models.Funcionario>
 
 @{
     ViewData["Title"] = "Index";
@@ -13,7 +13,10 @@
     <thead>
         <tr>
             <th>
-                @Html.DisplayNameFor(model => model.NIF)
+                @Html.DisplayNameFor(model => model.Funcao)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Fotografia)
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.UserName)
@@ -40,7 +43,10 @@
 @foreach (var item in Model) {
         <tr>
             <td>
-                @Html.DisplayFor(modelItem => item.NIF)
+                @Html.DisplayFor(modelItem => item.Funcao)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Fotografia)
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.UserName)

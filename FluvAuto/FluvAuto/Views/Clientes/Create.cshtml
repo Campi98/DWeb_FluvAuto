@@ -13,6 +13,16 @@
         <form asp-action="Create">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <div class="form-group">
+                <label asp-for="NIF" class="control-label"></label>
+                <input asp-for="NIF" class="form-control" />
+                <span asp-validation-for="NIF" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="UserName" class="control-label"></label>
+                <input asp-for="UserName" class="form-control" />
+                <span asp-validation-for="UserName" class="text-danger"></span>
+            </div>
+            <div class="form-group">
                 <label asp-for="Nome" class="control-label"></label>
                 <input asp-for="Nome" class="form-control" />
                 <span asp-validation-for="Nome" class="text-danger"></span>
@@ -33,9 +43,9 @@
                 <span asp-validation-for="Morada" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="NIF" class="control-label"></label>
-                <input asp-for="NIF" class="form-control" />
-                <span asp-validation-for="NIF" class="text-danger"></span>
+                <label asp-for="CodPostal" class="control-label"></label>
+                <input asp-for="CodPostal" class="form-control" />
+                <span asp-validation-for="CodPostal" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <input type="submit" value="Create" class="btn btn-primary" />
