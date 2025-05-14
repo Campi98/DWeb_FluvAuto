@@ -36,13 +36,7 @@ namespace FluvAuto.Models
         [Required(ErrorMessage = "A {0} é de preenchimento obrigatório.")]
         [Display(Name = "Matrícula")]
         [StringLength(20)]
-        [RegularExpression(@"^(
-            ([A-Za-z]{2}-[A-Za-z]{2}-[0-9]{2})|
-            ([0-9]{2}-[0-9]{2}-[A-Za-z]{2})|
-            ([A-Za-z]{2}-[0-9]{2}-[A-Za-z]{2})|
-            ([0-9]{2}-[A-Za-z]{2}-[0-9]{2})|
-            ([A-Za-z]{2}-[0-9]{2}-[0-9]{2})|
-            ([0-9]{2}-[A-Za-z]{2}-[A-Za-z]{2}))$",
+        [RegularExpression(@"^(([A-Za-z]{2}-[A-Za-z]{2}-[0-9]{2})|([0-9]{2}-[0-9]{2}-[A-Za-z]{2})|([A-Za-z]{2}-[0-9]{2}-[A-Za-z]{2})|([0-9]{2}-[A-Za-z]{2}-[0-9]{2})|([A-Za-z]{2}-[0-9]{2}-[0-9]{2})|([0-9]{2}-[A-Za-z]{2}-[A-Za-z]{2}))$",
             ErrorMessage = "A matrícula deve ter o formato XX-YY-ZZ, com máximo de 4 letras e 2 números ou 4 números e 2 letras.")]
         public string Matricula { get; set; }
 

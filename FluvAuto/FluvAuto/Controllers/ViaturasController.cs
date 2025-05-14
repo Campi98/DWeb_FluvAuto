@@ -82,6 +82,12 @@ namespace FluvAuto.Controllers
             {
                 return NotFound();
             }
+
+            // se o código chega aqui, é porque há "viatura" para editar
+            // temos que guardar os dados do objeto que vai ser enviado para o browser do utilizador
+            HttpContext.Session.SetInt32("ViaturaId", viatura.ViaturaId);
+            HttpContext.Session.SetString("Acao", "Viaturas/Edit"); // para saber que estamos a editar uma viatura, evitando trafulhices
+
             ViewData["ClienteFK"] = new SelectList(_context.Clientes, "UtilizadorId", "Email", viatura.ClienteFK);
             return View(viatura);
         }
@@ -91,18 +97,38 @@ namespace FluvAuto.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("ViaturaId,Marca,Modelo,Matricula,Ano,Cor,Combustivel,Motorizacao,ClienteFK")] Viatura viatura)
+        public async Task<IActionResult> Edit([FromRoute] int id, [Bind("ViaturaId,Marca,Modelo,Matricula,Ano,Cor,Combustivel,Motorizacao,ClienteFK")] Viatura viatura)
         {
+            // o FromRoute lê o id da URL, se houve alterações à rota, houve alterações indevidas
+            // Verifica se o id da rota corresponde ao da viatura recebida
             if (id != viatura.ViaturaId)
             {
-                return NotFound();
+                return RedirectToAction(nameof(Index));
+            }
+
+            // Verifica se o ID da viatura está guardado na sessão e se a ação é válida
+            var viaturaIdSession = HttpContext.Session.GetInt32("ViaturaId");
+            var acao = HttpContext.Session.GetString("Acao");
+            if (viaturaIdSession == null || string.IsNullOrEmpty(acao))
+            {
+                ModelState.AddModelError("", "Demorou muito tempo. Já não consegue alterar a viatura. Tem de reiniciar o processo.");
+                ViewData["ClienteFK"] = new SelectList(_context.Clientes, "UtilizadorId", "Email", viatura.ClienteFK);      //TODO: ver se esta linha está certa, ou se é necessária
+                // supostamente o cliente já estaria selecionado, e não pode alterar o cliente - vem da autenticação
+                return View(viatura);
+            }
+
+            // Verifica se o ID da sessão corresponde ao da viatura recebida e se a ação é válida
+            if (viaturaIdSession != viatura.ViaturaId || acao != "Viaturas/Edit")
+            {
+                // O utilizador está a tentar alterar outro objeto diferente do que recebeu
+                return RedirectToAction(nameof(Index));
             }
 
             if (ModelState.IsValid)
             {
                 try
                 {
-                    _context.Update(viatura);
+                    _context.Update(viatura); // atualiza o objeto viatura na base de dados
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
@@ -138,6 +164,10 @@ namespace FluvAuto.Controllers
                 return NotFound();
             }
 
+            // Guardar os dados do objeto e a ação na sessão
+            HttpContext.Session.SetInt32("ViaturaId", viatura.ViaturaId);
+            HttpContext.Session.SetString("Acao", "Viaturas/Delete");
+
             return View(viatura);
         }
 
@@ -147,12 +177,28 @@ namespace FluvAuto.Controllers
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var viatura = await _context.Viaturas.FindAsync(id);
+
+            // Verifica se o ID da viatura está guardado na sessão e se a ação é válida
+            var viaturaIdSession = HttpContext.Session.GetInt32("ViaturaId");
+            var acao = HttpContext.Session.GetString("Acao");
+            if (viaturaIdSession == null || string.IsNullOrEmpty(acao))
+            {   // demorar muito tempo => timeout
+                ModelState.AddModelError("", "Demorou muito tempo. Já não consegue eliminar a viatura. Tem de reiniciar o processo.");
+                return View(viatura);
+            }
+
+            // se houve adulteração aos dados
+            if (viaturaIdSession != (viatura?.ViaturaId ?? 0) || acao != "Viaturas/Delete")
+            {
+                return RedirectToAction(nameof(Index));
+            }
+
             if (viatura != null)
             {
                 _context.Viaturas.Remove(viatura);
+                await _context.SaveChangesAsync();
             }
 
-            await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
