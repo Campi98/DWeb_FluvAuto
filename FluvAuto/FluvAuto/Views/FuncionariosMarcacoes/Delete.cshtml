@@ -43,7 +43,7 @@
         </dd>
     </dl>
     
-    <form asp-action="Delete">
+    <form asp-action="Delete" asp-route-marcacaoId="@Model.MarcacaoFK" asp-route-funcionarioId="@Model.FuncionarioFK">
         <input type="hidden" asp-for="MarcacaoFK" />
         <input type="hidden" asp-for="FuncionarioFK" />
         <input type="submit" value="Delete" class="btn btn-danger" /> |

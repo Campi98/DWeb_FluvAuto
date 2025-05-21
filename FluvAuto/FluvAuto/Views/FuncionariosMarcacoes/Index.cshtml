@@ -49,9 +49,9 @@
                 @Html.DisplayFor(modelItem => item.Funcionario.Email)
             </td>
             <td>
-                @Html.ActionLink("Edit", "Edit", new { /* id=item.PrimaryKey */ }) |
-                @Html.ActionLink("Details", "Details", new { /* id=item.PrimaryKey */ }) |
-                @Html.ActionLink("Delete", "Delete", new { /* id=item.PrimaryKey */ })
+                @Html.ActionLink("Edit", "Edit", new { marcacaoId = item.MarcacaoFK, funcionarioId = item.FuncionarioFK })
+                @Html.ActionLink("Details", "Details", new { marcacaoId = item.MarcacaoFK, funcionarioId = item.FuncionarioFK })
+                @Html.ActionLink("Delete", "Delete", new { marcacaoId = item.MarcacaoFK, funcionarioId = item.FuncionarioFK })
             </td>
         </tr>
 }

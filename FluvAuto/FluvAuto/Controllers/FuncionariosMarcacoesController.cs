@@ -26,10 +26,10 @@ namespace FluvAuto.Controllers
             return View(await applicationDbContext.ToListAsync());
         }
 
-        // GET: FuncionariosMarcacoes/Details/5
-        public async Task<IActionResult> Details(int? id)
+        // GET: FuncionariosMarcacoes/Details?marcacaoId=1&funcionarioId=2
+        public async Task<IActionResult> Details(int? marcacaoId, int? funcionarioId)
         {
-            if (id == null)
+            if (marcacaoId == null || funcionarioId == null)
             {
                 return NotFound();
             }
@@ -37,7 +37,8 @@ namespace FluvAuto.Controllers
             var funcionariosMarcacoes = await _context.DadosServicos
                 .Include(f => f.Funcionario)
                 .Include(f => f.Marcacao)
-                .FirstOrDefaultAsync(m => m.MarcacaoFK == id);
+                .FirstOrDefaultAsync(m => m.MarcacaoFK == marcacaoId && m.FuncionarioFK == funcionarioId);
+
             if (funcionariosMarcacoes == null)
             {
                 return NotFound();
@@ -72,15 +73,17 @@ namespace FluvAuto.Controllers
             return View(funcionariosMarcacoes);
         }
 
-        // GET: FuncionariosMarcacoes/Edit/5
-        public async Task<IActionResult> Edit(int? id)
+        // GET: FuncionariosMarcacoes/Edit?marcacaoId=1&funcionarioId=2
+        public async Task<IActionResult> Edit(int? marcacaoId, int? funcionarioId)
         {
-            if (id == null)
+            if (marcacaoId == null || funcionarioId == null)
             {
                 return NotFound();
             }
 
-            var funcionariosMarcacoes = await _context.DadosServicos.FindAsync(id);
+            var funcionariosMarcacoes = await _context.DadosServicos
+                .FirstOrDefaultAsync(m => m.MarcacaoFK == marcacaoId && m.FuncionarioFK == funcionarioId);
+
             if (funcionariosMarcacoes == null)
             {
                 return NotFound();
@@ -95,9 +98,9 @@ namespace FluvAuto.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("HorasGastas,Comentarios,DataInicioServico,MarcacaoFK,FuncionarioFK")] FuncionariosMarcacoes funcionariosMarcacoes)
+        public async Task<IActionResult> Edit(int marcacaoId, int funcionarioId, [Bind("HorasGastas,Comentarios,DataInicioServico,MarcacaoFK,FuncionarioFK")] FuncionariosMarcacoes funcionariosMarcacoes)
         {
-            if (id != funcionariosMarcacoes.MarcacaoFK)
+            if (marcacaoId != funcionariosMarcacoes.MarcacaoFK || funcionarioId != funcionariosMarcacoes.FuncionarioFK)
             {
                 return NotFound();
             }
@@ -111,7 +114,7 @@ namespace FluvAuto.Controllers
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!FuncionariosMarcacoesExists(funcionariosMarcacoes.MarcacaoFK))
+                    if (!FuncionariosMarcacoesExists(marcacaoId, funcionarioId))
                     {
                         return NotFound();
                     }
@@ -128,9 +131,9 @@ namespace FluvAuto.Controllers
         }
 
         // GET: FuncionariosMarcacoes/Delete/5
-        public async Task<IActionResult> Delete(int? id)
+        public async Task<IActionResult> Delete(int? marcacaoId, int? funcionarioId)
         {
-            if (id == null)
+            if (marcacaoId == null || funcionarioId == null)
             {
                 return NotFound();
             }
@@ -138,7 +141,8 @@ namespace FluvAuto.Controllers
             var funcionariosMarcacoes = await _context.DadosServicos
                 .Include(f => f.Funcionario)
                 .Include(f => f.Marcacao)
-                .FirstOrDefaultAsync(m => m.MarcacaoFK == id);
+                .FirstOrDefaultAsync(m => m.MarcacaoFK == marcacaoId && m.FuncionarioFK == funcionarioId);
+
             if (funcionariosMarcacoes == null)
             {
                 return NotFound();
@@ -150,21 +154,23 @@ namespace FluvAuto.Controllers
         // POST: FuncionariosMarcacoes/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
+        public async Task<IActionResult> DeleteConfirmed(int marcacaoId, int funcionarioId)
         {
-            var funcionariosMarcacoes = await _context.DadosServicos.FindAsync(id);
+            var funcionariosMarcacoes = await _context.DadosServicos
+                .FirstOrDefaultAsync(m => m.MarcacaoFK == marcacaoId && m.FuncionarioFK == funcionarioId);
+
             if (funcionariosMarcacoes != null)
             {
                 _context.DadosServicos.Remove(funcionariosMarcacoes);
+                await _context.SaveChangesAsync();
             }
 
-            await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
-        private bool FuncionariosMarcacoesExists(int id)
+        private bool FuncionariosMarcacoesExists(int marcacaoId, int funcionarioId)
         {
-            return _context.DadosServicos.Any(e => e.MarcacaoFK == id);
+            return _context.DadosServicos.Any(e => e.MarcacaoFK == marcacaoId && e.FuncionarioFK == funcionarioId);
         }
     }
 }
