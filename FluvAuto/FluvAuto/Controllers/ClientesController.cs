@@ -78,6 +78,12 @@ namespace FluvAuto.Controllers
             {
                 return NotFound();
             }
+
+            // se o código chega aqui, é porque há "cliente" para editar
+            // temos que guardar os dados do objeto que vai ser enviado para o browser do utilizador
+            HttpContext.Session.SetInt32("ClienteId", cliente.UtilizadorId);
+            HttpContext.Session.SetString("Acao", "Clientes/Edit"); // para saber que estamos a editar um cliente, evitando trafulhices
+
             return View(cliente);
         }
 
@@ -86,11 +92,29 @@ namespace FluvAuto.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("NIF,UtilizadorId,UserName,Nome,Email,Telefone,Morada,CodPostal")] Cliente cliente)
+        public async Task<IActionResult> Edit([FromRoute] int id, [Bind("NIF,UtilizadorId,UserName,Nome,Email,Telefone,Morada,CodPostal")] Cliente cliente)
         {
+            // o FromRoute lê o id da URL, se houve alterações à rota, houve alterações indevidas
+            // Verifica se o id da rota corresponde ao do cliente recebido
             if (id != cliente.UtilizadorId)
             {
-                return NotFound();
+                return RedirectToAction(nameof(Index));
+            }
+
+            // Verifica se o ID do cliente está guardado na sessão e se a ação é válida
+            var clienteIdSession = HttpContext.Session.GetInt32("ClienteId");
+            var acao = HttpContext.Session.GetString("Acao");
+            if (clienteIdSession == null || string.IsNullOrEmpty(acao))
+            {
+                ModelState.AddModelError("", "Demorou muito tempo. Já não consegue alterar o cliente. Tem de reiniciar o processo.");
+                return View(cliente);
+            }
+
+            // Verifica se o ID da sessão corresponde ao do cliente recebido e se a ação é válida
+            if (clienteIdSession != cliente.UtilizadorId || acao != "Clientes/Edit")
+            {
+                // O utilizador está a tentar alterar outro objeto diferente do que recebeu
+                return RedirectToAction(nameof(Index));
             }
 
             if (ModelState.IsValid)
@@ -131,6 +155,10 @@ namespace FluvAuto.Controllers
                 return NotFound();
             }
 
+            // Guardar os dados do objeto e a ação na sessão
+            HttpContext.Session.SetInt32("ClienteId", cliente.UtilizadorId);
+            HttpContext.Session.SetString("Acao", "Clientes/Delete");
+
             return View(cliente);
         }
 
@@ -140,12 +168,28 @@ namespace FluvAuto.Controllers
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var cliente = await _context.Clientes.FindAsync(id);
+
+            // Verifica se o ID do cliente está guardado na sessão e se a ação é válida
+            var clienteIdSession = HttpContext.Session.GetInt32("ClienteId");
+            var acao = HttpContext.Session.GetString("Acao");
+            if (clienteIdSession == null || string.IsNullOrEmpty(acao))
+            {   // demorar muito tempo => timeout
+                ModelState.AddModelError("", "Demorou muito tempo. Já não consegue eliminar o cliente. Tem de reiniciar o processo.");
+                return View(cliente);
+            }
+
+            // se houve adulteração aos dados
+            if (clienteIdSession != (cliente?.UtilizadorId ?? 0) || acao != "Clientes/Delete")
+            {
+                return RedirectToAction(nameof(Index));
+            }
+
             if (cliente != null)
             {
                 _context.Clientes.Remove(cliente);
+                await _context.SaveChangesAsync();
             }
 
-            await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
