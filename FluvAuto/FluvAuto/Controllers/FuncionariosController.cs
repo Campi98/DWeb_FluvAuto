@@ -78,6 +78,12 @@ namespace FluvAuto.Controllers
             {
                 return NotFound();
             }
+
+            // se o código chega aqui, é porque há "funcionário" para editar
+            // temos que guardar os dados do objeto que vai ser enviado para o browser do utilizador
+            HttpContext.Session.SetInt32("FuncionarioId", funcionario.UtilizadorId);
+            HttpContext.Session.SetString("Acao", "Funcionarios/Edit"); // para saber que estamos a editar um funcionário, evitando trafulhices
+
             return View(funcionario);
         }
 
@@ -86,11 +92,29 @@ namespace FluvAuto.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Funcao,Fotografia,UtilizadorId,UserName,Nome,Email,Telefone,Morada,CodPostal")] Funcionario funcionario)
+        public async Task<IActionResult> Edit([FromRoute] int id, [Bind("Funcao,Fotografia,UtilizadorId,UserName,Nome,Email,Telefone,Morada,CodPostal")] Funcionario funcionario)
         {
+            // o FromRoute lê o id da URL, se houve alterações à rota, houve alterações indevidas
+            // Verifica se o id da rota corresponde ao do funcionário recebido
             if (id != funcionario.UtilizadorId)
             {
-                return NotFound();
+                return RedirectToAction(nameof(Index));
+            }
+
+            // Verifica se o ID do funcionário está guardado na sessão e se a ação é válida
+            var funcionarioIdSession = HttpContext.Session.GetInt32("FuncionarioId");
+            var acao = HttpContext.Session.GetString("Acao");
+            if (funcionarioIdSession == null || string.IsNullOrEmpty(acao))
+            {
+                ModelState.AddModelError("", "Demorou muito tempo. Já não consegue alterar o funcionário. Tem de reiniciar o processo.");
+                return View(funcionario);
+            }
+
+            // Verifica se o ID da sessão corresponde ao do funcionário recebido e se a ação é válida
+            if (funcionarioIdSession != funcionario.UtilizadorId || acao != "Funcionarios/Edit")
+            {
+                // O utilizador está a tentar alterar outro objeto diferente do que recebeu
+                return RedirectToAction(nameof(Index));
             }
 
             if (ModelState.IsValid)
@@ -131,6 +155,10 @@ namespace FluvAuto.Controllers
                 return NotFound();
             }
 
+            // Guardar os dados do objeto e a ação na sessão
+            HttpContext.Session.SetInt32("FuncionarioId", funcionario.UtilizadorId);
+            HttpContext.Session.SetString("Acao", "Funcionarios/Delete");
+
             return View(funcionario);
         }
 
@@ -140,12 +168,28 @@ namespace FluvAuto.Controllers
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var funcionario = await _context.Funcionarios.FindAsync(id);
+
+            // Verifica se o ID do funcionário está guardado na sessão e se a ação é válida
+            var funcionarioIdSession = HttpContext.Session.GetInt32("FuncionarioId");
+            var acao = HttpContext.Session.GetString("Acao");
+            if (funcionarioIdSession == null || string.IsNullOrEmpty(acao))
+            {   // demorar muito tempo => timeout
+                ModelState.AddModelError("", "Demorou muito tempo. Já não consegue eliminar o funcionário. Tem de reiniciar o processo.");
+                return View(funcionario);
+            }
+
+            // se houve adulteração aos dados
+            if (funcionarioIdSession != (funcionario?.UtilizadorId ?? 0) || acao != "Funcionarios/Delete")
+            {
+                return RedirectToAction(nameof(Index));
+            }
+
             if (funcionario != null)
             {
                 _context.Funcionarios.Remove(funcionario);
+                await _context.SaveChangesAsync();
             }
 
-            await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
