@@ -12,17 +12,17 @@ namespace FluvAuto.Controllers
 {
     public class ClientesController : Controller
     {
-        private readonly ApplicationDbContext _context;
+        private readonly ApplicationDbContext _bd;
 
         public ClientesController(ApplicationDbContext context)
         {
-            _context = context;
+            _bd = context;
         }
 
         // GET: Clientes
         public async Task<IActionResult> Index()
         {
-            return View(await _context.Clientes.ToListAsync());
+            return View(await _bd.Clientes.ToListAsync());
         }
 
         // GET: Clientes/Details/5
@@ -33,7 +33,7 @@ namespace FluvAuto.Controllers
                 return NotFound();
             }
 
-            var cliente = await _context.Clientes
+            var cliente = await _bd.Clientes
                 .FirstOrDefaultAsync(m => m.UtilizadorId == id);
             if (cliente == null)
             {
@@ -54,15 +54,15 @@ namespace FluvAuto.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("NIF,UtilizadorId,UserName,Nome,Email,Telefone,Morada,CodPostal")] Cliente cliente)
+        public async Task<IActionResult> Create([Bind("NIF,UtilizadorId,UserName,Nome,Email,Telefone,Morada,CodPostal")] Cliente clienteNovo)
         {
             if (ModelState.IsValid)
             {
-                _context.Add(cliente);
-                await _context.SaveChangesAsync();
+                _bd.Add(clienteNovo);
+                await _bd.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            return View(cliente);
+            return View(clienteNovo);
         }
 
         // GET: Clientes/Edit/5
@@ -73,7 +73,7 @@ namespace FluvAuto.Controllers
                 return NotFound();
             }
 
-            var cliente = await _context.Clientes.FindAsync(id);
+            var cliente = await _bd.Clientes.FindAsync(id);
             if (cliente == null)
             {
                 return NotFound();
@@ -92,11 +92,11 @@ namespace FluvAuto.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit([FromRoute] int id, [Bind("NIF,UtilizadorId,UserName,Nome,Email,Telefone,Morada,CodPostal")] Cliente cliente)
+        public async Task<IActionResult> Edit([FromRoute] int id, [Bind("NIF,UtilizadorId,UserName,Nome,Email,Telefone,Morada,CodPostal")] Cliente clienteAlterado)
         {
             // o FromRoute lê o id da URL, se houve alterações à rota, houve alterações indevidas
             // Verifica se o id da rota corresponde ao do cliente recebido
-            if (id != cliente.UtilizadorId)
+            if (id != clienteAlterado.UtilizadorId)
             {
                 return RedirectToAction(nameof(Index));
             }
@@ -107,11 +107,11 @@ namespace FluvAuto.Controllers
             if (clienteIdSession == null || string.IsNullOrEmpty(acao))
             {
                 ModelState.AddModelError("", "Demorou muito tempo. Já não consegue alterar o cliente. Tem de reiniciar o processo.");
-                return View(cliente);
+                return View(clienteAlterado);
             }
 
             // Verifica se o ID da sessão corresponde ao do cliente recebido e se a ação é válida
-            if (clienteIdSession != cliente.UtilizadorId || acao != "Clientes/Edit")
+            if (clienteIdSession != clienteAlterado.UtilizadorId || acao != "Clientes/Edit")
             {
                 // O utilizador está a tentar alterar outro objeto diferente do que recebeu
                 return RedirectToAction(nameof(Index));
@@ -121,12 +121,12 @@ namespace FluvAuto.Controllers
             {
                 try
                 {
-                    _context.Update(cliente);
-                    await _context.SaveChangesAsync();
+                    _bd.Update(clienteAlterado);
+                    await _bd.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!ClienteExists(cliente.UtilizadorId))
+                    if (!ClienteExists(clienteAlterado.UtilizadorId))
                     {
                         return NotFound();
                     }
@@ -137,7 +137,7 @@ namespace FluvAuto.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            return View(cliente);
+            return View(clienteAlterado);
         }
 
         // GET: Clientes/Delete/5
@@ -148,7 +148,7 @@ namespace FluvAuto.Controllers
                 return NotFound();
             }
 
-            var cliente = await _context.Clientes
+            var cliente = await _bd.Clientes
                 .FirstOrDefaultAsync(m => m.UtilizadorId == id);
             if (cliente == null)
             {
@@ -167,7 +167,7 @@ namespace FluvAuto.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var cliente = await _context.Clientes.FindAsync(id);
+            var cliente = await _bd.Clientes.FindAsync(id);
 
             // Verifica se o ID do cliente está guardado na sessão e se a ação é válida
             var clienteIdSession = HttpContext.Session.GetInt32("ClienteId");
@@ -186,8 +186,8 @@ namespace FluvAuto.Controllers
 
             if (cliente != null)
             {
-                _context.Clientes.Remove(cliente);
-                await _context.SaveChangesAsync();
+                _bd.Clientes.Remove(cliente);
+                await _bd.SaveChangesAsync();
             }
 
             return RedirectToAction(nameof(Index));
@@ -195,7 +195,7 @@ namespace FluvAuto.Controllers
 
         private bool ClienteExists(int id)
         {
-            return _context.Clientes.Any(e => e.UtilizadorId == id);
+            return _bd.Clientes.Any(e => e.UtilizadorId == id);
         }
     }
 }
