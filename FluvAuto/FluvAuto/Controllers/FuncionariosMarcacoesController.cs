@@ -12,17 +12,17 @@ namespace FluvAuto.Controllers
 {
     public class FuncionariosMarcacoesController : Controller
     {
-        private readonly ApplicationDbContext _context;
+        private readonly ApplicationDbContext _bd;
 
         public FuncionariosMarcacoesController(ApplicationDbContext context)
         {
-            _context = context;
+            _bd = context;
         }
 
         // GET: FuncionariosMarcacoes
         public async Task<IActionResult> Index()
         {
-            var applicationDbContext = _context.DadosServicos.Include(f => f.Funcionario).Include(f => f.Marcacao);
+            var applicationDbContext = _bd.FuncionariosMarcacoes.Include(f => f.Funcionario).Include(f => f.Marcacao);
             return View(await applicationDbContext.ToListAsync());
         }
 
@@ -34,7 +34,7 @@ namespace FluvAuto.Controllers
                 return NotFound();
             }
 
-            var funcionariosMarcacoes = await _context.DadosServicos
+            var funcionariosMarcacoes = await _bd.FuncionariosMarcacoes
                 .Include(f => f.Funcionario)
                 .Include(f => f.Marcacao)
                 .FirstOrDefaultAsync(m => m.MarcacaoFK == marcacaoId && m.FuncionarioFK == funcionarioId);
@@ -50,8 +50,8 @@ namespace FluvAuto.Controllers
         // GET: FuncionariosMarcacoes/Create
         public IActionResult Create()
         {
-            ViewData["FuncionarioFK"] = new SelectList(_context.Funcionarios, "UtilizadorId", "Email");
-            ViewData["MarcacaoFK"] = new SelectList(_context.Marcacoes, "MarcacaoId", "Servico");
+            ViewData["FuncionarioFK"] = new SelectList(_bd.Funcionarios, "UtilizadorId", "Email");
+            ViewData["MarcacaoFK"] = new SelectList(_bd.Marcacoes, "MarcacaoId", "Servico");
             return View();
         }
 
@@ -60,17 +60,17 @@ namespace FluvAuto.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("HorasGastas,Comentarios,DataInicioServico,MarcacaoFK,FuncionarioFK")] FuncionariosMarcacoes funcionariosMarcacoes)
+        public async Task<IActionResult> Create([Bind("HorasGastas,Comentarios,DataInicioServico,MarcacaoFK,FuncionarioFK")] FuncionariosMarcacoes funcionarioMarcacaoNova)
         {
             if (ModelState.IsValid)
             {
-                _context.Add(funcionariosMarcacoes);
-                await _context.SaveChangesAsync();
+                _bd.Add(funcionarioMarcacaoNova);
+                await _bd.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["FuncionarioFK"] = new SelectList(_context.Funcionarios, "UtilizadorId", "Email", funcionariosMarcacoes.FuncionarioFK);
-            ViewData["MarcacaoFK"] = new SelectList(_context.Marcacoes, "MarcacaoId", "Servico", funcionariosMarcacoes.MarcacaoFK);
-            return View(funcionariosMarcacoes);
+            ViewData["FuncionarioFK"] = new SelectList(_bd.Funcionarios, "UtilizadorId", "Email", funcionarioMarcacaoNova.FuncionarioFK);
+            ViewData["MarcacaoFK"] = new SelectList(_bd.Marcacoes, "MarcacaoId", "Servico", funcionarioMarcacaoNova.MarcacaoFK);
+            return View(funcionarioMarcacaoNova);
         }
 
         // GET: FuncionariosMarcacoes/Edit?marcacaoId=1&funcionarioId=2
@@ -81,15 +81,15 @@ namespace FluvAuto.Controllers
                 return NotFound();
             }
 
-            var funcionariosMarcacoes = await _context.DadosServicos
+            var funcionariosMarcacoes = await _bd.FuncionariosMarcacoes
                 .FirstOrDefaultAsync(m => m.MarcacaoFK == marcacaoId && m.FuncionarioFK == funcionarioId);
 
             if (funcionariosMarcacoes == null)
             {
                 return NotFound();
             }
-            ViewData["FuncionarioFK"] = new SelectList(_context.Funcionarios, "UtilizadorId", "Email", funcionariosMarcacoes.FuncionarioFK);
-            ViewData["MarcacaoFK"] = new SelectList(_context.Marcacoes, "MarcacaoId", "Servico", funcionariosMarcacoes.MarcacaoFK);
+            ViewData["FuncionarioFK"] = new SelectList(_bd.Funcionarios, "UtilizadorId", "Email", funcionariosMarcacoes.FuncionarioFK);
+            ViewData["MarcacaoFK"] = new SelectList(_bd.Marcacoes, "MarcacaoId", "Servico", funcionariosMarcacoes.MarcacaoFK);
             return View(funcionariosMarcacoes);
         }
 
@@ -98,9 +98,9 @@ namespace FluvAuto.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int marcacaoId, int funcionarioId, [Bind("HorasGastas,Comentarios,DataInicioServico,MarcacaoFK,FuncionarioFK")] FuncionariosMarcacoes funcionariosMarcacoes)
+        public async Task<IActionResult> Edit(int marcacaoId, int funcionarioId, [Bind("HorasGastas,Comentarios,DataInicioServico,MarcacaoFK,FuncionarioFK")] FuncionariosMarcacoes funcionarioMarcacaoAlterada)
         {
-            if (marcacaoId != funcionariosMarcacoes.MarcacaoFK || funcionarioId != funcionariosMarcacoes.FuncionarioFK)
+            if (marcacaoId != funcionarioMarcacaoAlterada.MarcacaoFK || funcionarioId != funcionarioMarcacaoAlterada.FuncionarioFK)
             {
                 return NotFound();
             }
@@ -109,8 +109,8 @@ namespace FluvAuto.Controllers
             {
                 try
                 {
-                    _context.Update(funcionariosMarcacoes);
-                    await _context.SaveChangesAsync();
+                    _bd.Update(funcionarioMarcacaoAlterada);
+                    await _bd.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -125,9 +125,9 @@ namespace FluvAuto.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["FuncionarioFK"] = new SelectList(_context.Funcionarios, "UtilizadorId", "Email", funcionariosMarcacoes.FuncionarioFK);
-            ViewData["MarcacaoFK"] = new SelectList(_context.Marcacoes, "MarcacaoId", "Servico", funcionariosMarcacoes.MarcacaoFK);
-            return View(funcionariosMarcacoes);
+            ViewData["FuncionarioFK"] = new SelectList(_bd.Funcionarios, "UtilizadorId", "Email", funcionarioMarcacaoAlterada.FuncionarioFK);
+            ViewData["MarcacaoFK"] = new SelectList(_bd.Marcacoes, "MarcacaoId", "Servico", funcionarioMarcacaoAlterada.MarcacaoFK);
+            return View(funcionarioMarcacaoAlterada);
         }
 
         // GET: FuncionariosMarcacoes/Delete/5
@@ -138,7 +138,7 @@ namespace FluvAuto.Controllers
                 return NotFound();
             }
 
-            var funcionariosMarcacoes = await _context.DadosServicos
+            var funcionariosMarcacoes = await _bd.FuncionariosMarcacoes
                 .Include(f => f.Funcionario)
                 .Include(f => f.Marcacao)
                 .FirstOrDefaultAsync(m => m.MarcacaoFK == marcacaoId && m.FuncionarioFK == funcionarioId);
@@ -156,13 +156,13 @@ namespace FluvAuto.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int marcacaoId, int funcionarioId)
         {
-            var funcionariosMarcacoes = await _context.DadosServicos
+            var funcionariosMarcacoes = await _bd.FuncionariosMarcacoes
                 .FirstOrDefaultAsync(m => m.MarcacaoFK == marcacaoId && m.FuncionarioFK == funcionarioId);
 
             if (funcionariosMarcacoes != null)
             {
-                _context.DadosServicos.Remove(funcionariosMarcacoes);
-                await _context.SaveChangesAsync();
+                _bd.FuncionariosMarcacoes.Remove(funcionariosMarcacoes);
+                await _bd.SaveChangesAsync();
             }
 
             return RedirectToAction(nameof(Index));
@@ -170,7 +170,7 @@ namespace FluvAuto.Controllers
 
         private bool FuncionariosMarcacoesExists(int marcacaoId, int funcionarioId)
         {
-            return _context.DadosServicos.Any(e => e.MarcacaoFK == marcacaoId && e.FuncionarioFK == funcionarioId);
+            return _bd.FuncionariosMarcacoes.Any(e => e.MarcacaoFK == marcacaoId && e.FuncionarioFK == funcionarioId);
         }
     }
 }
