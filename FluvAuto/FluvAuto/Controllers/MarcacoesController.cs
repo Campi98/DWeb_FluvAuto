@@ -12,17 +12,17 @@ namespace FluvAuto.Controllers
 {
     public class MarcacoesController : Controller
     {
-        private readonly ApplicationDbContext _context;
+        private readonly ApplicationDbContext _bd;
 
         public MarcacoesController(ApplicationDbContext context)
         {
-            _context = context;
+            _bd = context;
         }
 
         // GET: Marcacoes
         public async Task<IActionResult> Index()
         {
-            var applicationDbContext = _context.Marcacoes.Include(m => m.Viatura);
+            var applicationDbContext = _bd.Marcacoes.Include(m => m.Viatura);
             return View(await applicationDbContext.ToListAsync());
         }
 
@@ -34,7 +34,7 @@ namespace FluvAuto.Controllers
                 return NotFound();
             }
 
-            var marcacao = await _context.Marcacoes
+            var marcacao = await _bd.Marcacoes
                 .Include(m => m.Viatura)
                 .FirstOrDefaultAsync(m => m.MarcacaoId == id);
             if (marcacao == null)
@@ -48,7 +48,7 @@ namespace FluvAuto.Controllers
         // GET: Marcacoes/Create
         public IActionResult Create()
         {
-            ViewData["ViaturaFK"] = new SelectList(_context.Viaturas, "ViaturaId", "Matricula");
+            ViewData["ViaturaFK"] = new SelectList(_bd.Viaturas, "ViaturaId", "Matricula");
             return View();
         }
 
@@ -57,16 +57,16 @@ namespace FluvAuto.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("MarcacaoId,DataMarcacaoFeita,DataPrevistaInicioServico,DataFimServico,Servico,Observacoes,Estado,ViaturaFK")] Marcacao marcacao)
+        public async Task<IActionResult> Create([Bind("MarcacaoId,DataMarcacaoFeita,DataPrevistaInicioServico,DataFimServico,Servico,Observacoes,Estado,ViaturaFK")] Marcacao marcacaoNova)
         {
             if (ModelState.IsValid)
             {
-                _context.Add(marcacao);
-                await _context.SaveChangesAsync();
+                _bd.Add(marcacaoNova);
+                await _bd.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["ViaturaFK"] = new SelectList(_context.Viaturas, "ViaturaId", "Matricula", marcacao.ViaturaFK);
-            return View(marcacao);
+            ViewData["ViaturaFK"] = new SelectList(_bd.Viaturas, "ViaturaId", "Matricula", marcacaoNova.ViaturaFK);
+            return View(marcacaoNova);
         }
 
         // GET: Marcacoes/Edit/5
@@ -77,7 +77,7 @@ namespace FluvAuto.Controllers
                 return NotFound();
             }
 
-            var marcacao = await _context.Marcacoes.FindAsync(id);
+            var marcacao = await _bd.Marcacoes.FindAsync(id);
             if (marcacao == null)
             {
                 return NotFound();
@@ -88,7 +88,7 @@ namespace FluvAuto.Controllers
             HttpContext.Session.SetInt32("MarcacaoId", marcacao.MarcacaoId);
             HttpContext.Session.SetString("Acao", "Marcacoes/Edit"); // para saber que estamos a editar uma marcação, evitando trafulhices
 
-            ViewData["ViaturaFK"] = new SelectList(_context.Viaturas, "ViaturaId", "Matricula", marcacao.ViaturaFK);
+            ViewData["ViaturaFK"] = new SelectList(_bd.Viaturas, "ViaturaId", "Matricula", marcacao.ViaturaFK);
             return View(marcacao);
         }
 
@@ -97,11 +97,11 @@ namespace FluvAuto.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit([FromRoute] int id, [Bind("MarcacaoId,DataMarcacaoFeita,DataPrevistaInicioServico,DataFimServico,Servico,Observacoes,Estado,ViaturaFK")] Marcacao marcacao)
+        public async Task<IActionResult> Edit([FromRoute] int id, [Bind("MarcacaoId,DataMarcacaoFeita,DataPrevistaInicioServico,DataFimServico,Servico,Observacoes,Estado,ViaturaFK")] Marcacao marcacaoAlterada)
         {
             // o FromRoute lê o id da URL, se houve alterações à rota, houve alterações indevidas
             // Verifica se o id da rota corresponde ao da marcação recebida
-            if (id != marcacao.MarcacaoId)
+            if (id != marcacaoAlterada.MarcacaoId)
             {
                 return RedirectToAction(nameof(Index));
             }
@@ -112,12 +112,12 @@ namespace FluvAuto.Controllers
             if (marcacaoIdSession == null || string.IsNullOrEmpty(acao))
             {
                 ModelState.AddModelError("", "Demorou muito tempo. Já não consegue alterar a marcação. Tem de reiniciar o processo.");
-                ViewData["ViaturaFK"] = new SelectList(_context.Viaturas, "ViaturaId", "Matricula", marcacao.ViaturaFK);
-                return View(marcacao);
+                ViewData["ViaturaFK"] = new SelectList(_bd.Viaturas, "ViaturaId", "Matricula", marcacaoAlterada.ViaturaFK);
+                return View(marcacaoAlterada);
             }
 
             // Verifica se o ID da sessão corresponde ao da marcação recebida e se a ação é válida
-            if (marcacaoIdSession != marcacao.MarcacaoId || acao != "Marcacoes/Edit")
+            if (marcacaoIdSession != marcacaoAlterada.MarcacaoId || acao != "Marcacoes/Edit")
             {
                 // O utilizador está a tentar alterar outro objeto diferente do que recebeu
                 return RedirectToAction(nameof(Index));
@@ -127,12 +127,12 @@ namespace FluvAuto.Controllers
             {
                 try
                 {
-                    _context.Update(marcacao);
-                    await _context.SaveChangesAsync();
+                    _bd.Update(marcacaoAlterada);
+                    await _bd.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!MarcacaoExists(marcacao.MarcacaoId))
+                    if (!MarcacaoExists(marcacaoAlterada.MarcacaoId))
                     {
                         return NotFound();
                     }
@@ -143,8 +143,8 @@ namespace FluvAuto.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["ViaturaFK"] = new SelectList(_context.Viaturas, "ViaturaId", "Matricula", marcacao.ViaturaFK);
-            return View(marcacao);
+            ViewData["ViaturaFK"] = new SelectList(_bd.Viaturas, "ViaturaId", "Matricula", marcacaoAlterada.ViaturaFK);
+            return View(marcacaoAlterada);
         }
 
         // GET: Marcacoes/Delete/5
@@ -155,7 +155,7 @@ namespace FluvAuto.Controllers
                 return NotFound();
             }
 
-            var marcacao = await _context.Marcacoes
+            var marcacao = await _bd.Marcacoes
                 .Include(m => m.Viatura)
                 .FirstOrDefaultAsync(m => m.MarcacaoId == id);
             if (marcacao == null)
@@ -175,7 +175,7 @@ namespace FluvAuto.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var marcacao = await _context.Marcacoes.FindAsync(id);
+            var marcacao = await _bd.Marcacoes.FindAsync(id);
 
             // Verifica se o ID da marcação está guardado na sessão e se a ação é válida
             var marcacaoIdSession = HttpContext.Session.GetInt32("MarcacaoId");
@@ -194,8 +194,8 @@ namespace FluvAuto.Controllers
 
             if (marcacao != null)
             {
-                _context.Marcacoes.Remove(marcacao);
-                await _context.SaveChangesAsync();
+                _bd.Marcacoes.Remove(marcacao);
+                await _bd.SaveChangesAsync();
             }
 
             return RedirectToAction(nameof(Index));
@@ -203,7 +203,7 @@ namespace FluvAuto.Controllers
 
         private bool MarcacaoExists(int id)
         {
-            return _context.Marcacoes.Any(e => e.MarcacaoId == id);
+            return _bd.Marcacoes.Any(e => e.MarcacaoId == id);
         }
     }
 }
