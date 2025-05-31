@@ -12,17 +12,17 @@ namespace FluvAuto.Controllers
 {
     public class FuncionariosController : Controller
     {
-        private readonly ApplicationDbContext _context;
+        private readonly ApplicationDbContext _bd;
 
         public FuncionariosController(ApplicationDbContext context)
         {
-            _context = context;
+            _bd = context;
         }
 
         // GET: Funcionarios
         public async Task<IActionResult> Index()
         {
-            return View(await _context.Funcionarios.ToListAsync());
+            return View(await _bd.Funcionarios.ToListAsync());
         }
 
         // GET: Funcionarios/Details/5
@@ -33,7 +33,7 @@ namespace FluvAuto.Controllers
                 return NotFound();
             }
 
-            var funcionario = await _context.Funcionarios
+            var funcionario = await _bd.Funcionarios
                 .FirstOrDefaultAsync(m => m.UtilizadorId == id);
             if (funcionario == null)
             {
@@ -54,15 +54,15 @@ namespace FluvAuto.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Funcao,Fotografia,UtilizadorId,UserName,Nome,Email,Telefone,Morada,CodPostal")] Funcionario funcionario)
+        public async Task<IActionResult> Create([Bind("Funcao,Fotografia,UtilizadorId,UserName,Nome,Email,Telefone,Morada,CodPostal")] Funcionario funcionarioNovo)
         {
             if (ModelState.IsValid)
             {
-                _context.Add(funcionario);
-                await _context.SaveChangesAsync();
+                _bd.Add(funcionarioNovo);
+                await _bd.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            return View(funcionario);
+            return View(funcionarioNovo);
         }
 
         // GET: Funcionarios/Edit/5
@@ -73,7 +73,7 @@ namespace FluvAuto.Controllers
                 return NotFound();
             }
 
-            var funcionario = await _context.Funcionarios.FindAsync(id);
+            var funcionario = await _bd.Funcionarios.FindAsync(id);
             if (funcionario == null)
             {
                 return NotFound();
@@ -92,11 +92,11 @@ namespace FluvAuto.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit([FromRoute] int id, [Bind("Funcao,Fotografia,UtilizadorId,UserName,Nome,Email,Telefone,Morada,CodPostal")] Funcionario funcionario)
+        public async Task<IActionResult> Edit([FromRoute] int id, [Bind("Funcao,Fotografia,UtilizadorId,UserName,Nome,Email,Telefone,Morada,CodPostal")] Funcionario funcionarioAlterado)
         {
             // o FromRoute lê o id da URL, se houve alterações à rota, houve alterações indevidas
             // Verifica se o id da rota corresponde ao do funcionário recebido
-            if (id != funcionario.UtilizadorId)
+            if (id != funcionarioAlterado.UtilizadorId)
             {
                 return RedirectToAction(nameof(Index));
             }
@@ -107,11 +107,11 @@ namespace FluvAuto.Controllers
             if (funcionarioIdSession == null || string.IsNullOrEmpty(acao))
             {
                 ModelState.AddModelError("", "Demorou muito tempo. Já não consegue alterar o funcionário. Tem de reiniciar o processo.");
-                return View(funcionario);
+                return View(funcionarioAlterado);
             }
 
             // Verifica se o ID da sessão corresponde ao do funcionário recebido e se a ação é válida
-            if (funcionarioIdSession != funcionario.UtilizadorId || acao != "Funcionarios/Edit")
+            if (funcionarioIdSession != funcionarioAlterado.UtilizadorId || acao != "Funcionarios/Edit")
             {
                 // O utilizador está a tentar alterar outro objeto diferente do que recebeu
                 return RedirectToAction(nameof(Index));
@@ -121,12 +121,12 @@ namespace FluvAuto.Controllers
             {
                 try
                 {
-                    _context.Update(funcionario);
-                    await _context.SaveChangesAsync();
+                    _bd.Update(funcionarioAlterado);
+                    await _bd.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!FuncionarioExists(funcionario.UtilizadorId))
+                    if (!FuncionarioExists(funcionarioAlterado.UtilizadorId))
                     {
                         return NotFound();
                     }
@@ -137,7 +137,7 @@ namespace FluvAuto.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            return View(funcionario);
+            return View(funcionarioAlterado);
         }
 
         // GET: Funcionarios/Delete/5
@@ -148,7 +148,7 @@ namespace FluvAuto.Controllers
                 return NotFound();
             }
 
-            var funcionario = await _context.Funcionarios
+            var funcionario = await _bd.Funcionarios
                 .FirstOrDefaultAsync(m => m.UtilizadorId == id);
             if (funcionario == null)
             {
@@ -167,7 +167,7 @@ namespace FluvAuto.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var funcionario = await _context.Funcionarios.FindAsync(id);
+            var funcionario = await _bd.Funcionarios.FindAsync(id);
 
             // Verifica se o ID do funcionário está guardado na sessão e se a ação é válida
             var funcionarioIdSession = HttpContext.Session.GetInt32("FuncionarioId");
@@ -186,8 +186,8 @@ namespace FluvAuto.Controllers
 
             if (funcionario != null)
             {
-                _context.Funcionarios.Remove(funcionario);
-                await _context.SaveChangesAsync();
+                _bd.Funcionarios.Remove(funcionario);
+                await _bd.SaveChangesAsync();
             }
 
             return RedirectToAction(nameof(Index));
@@ -195,7 +195,7 @@ namespace FluvAuto.Controllers
 
         private bool FuncionarioExists(int id)
         {
-            return _context.Funcionarios.Any(e => e.UtilizadorId == id);
+            return _bd.Funcionarios.Any(e => e.UtilizadorId == id);
         }
     }
 }
