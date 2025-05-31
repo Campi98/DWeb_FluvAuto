@@ -12,17 +12,17 @@ namespace FluvAuto.Controllers
 {
     public class ViaturasController : Controller
     {
-        private readonly ApplicationDbContext _context;
+        private readonly ApplicationDbContext _bd;
 
         public ViaturasController(ApplicationDbContext context)
         {
-            _context = context;
+            _bd = context;
         }
 
         // GET: Viaturas
         public async Task<IActionResult> Index()
         {
-            var applicationDbContext = _context.Viaturas.Include(v => v.Cliente);
+            var applicationDbContext = _bd.Viaturas.Include(v => v.Cliente);
             return View(await applicationDbContext.ToListAsync());
         }
 
@@ -34,7 +34,7 @@ namespace FluvAuto.Controllers
                 return NotFound();
             }
 
-            var viatura = await _context.Viaturas
+            var viatura = await _bd.Viaturas
                 .Include(v => v.Cliente)
                 .FirstOrDefaultAsync(m => m.ViaturaId == id);
             if (viatura == null)
@@ -48,7 +48,7 @@ namespace FluvAuto.Controllers
         // GET: Viaturas/Create
         public IActionResult Create()
         {
-            ViewData["ClienteFK"] = new SelectList(_context.Clientes, "UtilizadorId", "Email");
+            ViewData["ClienteFK"] = new SelectList(_bd.Clientes, "UtilizadorId", "Email");
             return View();
         }
 
@@ -57,16 +57,16 @@ namespace FluvAuto.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("ViaturaId,Marca,Modelo,Matricula,Ano,Cor,Combustivel,Motorizacao,ClienteFK")] Viatura viatura)
+        public async Task<IActionResult> Create([Bind("ViaturaId,Marca,Modelo,Matricula,Ano,Cor,Combustivel,Motorizacao,ClienteFK")] Viatura viaturaNova)
         {
             if (ModelState.IsValid)
             {
-                _context.Add(viatura);
-                await _context.SaveChangesAsync();
+                _bd.Add(viaturaNova);
+                await _bd.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["ClienteFK"] = new SelectList(_context.Clientes, "UtilizadorId", "Email", viatura.ClienteFK);
-            return View(viatura);
+            ViewData["ClienteFK"] = new SelectList(_bd.Clientes, "UtilizadorId", "Email", viaturaNova.ClienteFK);
+            return View(viaturaNova);
         }
 
         // GET: Viaturas/Edit/5
@@ -77,7 +77,7 @@ namespace FluvAuto.Controllers
                 return NotFound();
             }
 
-            var viatura = await _context.Viaturas.FindAsync(id);
+            var viatura = await _bd.Viaturas.FindAsync(id);
             if (viatura == null)
             {
                 return NotFound();
@@ -88,7 +88,7 @@ namespace FluvAuto.Controllers
             HttpContext.Session.SetInt32("ViaturaId", viatura.ViaturaId);
             HttpContext.Session.SetString("Acao", "Viaturas/Edit"); // para saber que estamos a editar uma viatura, evitando trafulhices
 
-            ViewData["ClienteFK"] = new SelectList(_context.Clientes, "UtilizadorId", "Email", viatura.ClienteFK);
+            ViewData["ClienteFK"] = new SelectList(_bd.Clientes, "UtilizadorId", "Email", viatura.ClienteFK);
             return View(viatura);
         }
 
@@ -97,11 +97,11 @@ namespace FluvAuto.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit([FromRoute] int id, [Bind("ViaturaId,Marca,Modelo,Matricula,Ano,Cor,Combustivel,Motorizacao,ClienteFK")] Viatura viatura)
+        public async Task<IActionResult> Edit([FromRoute] int id, [Bind("ViaturaId,Marca,Modelo,Matricula,Ano,Cor,Combustivel,Motorizacao,ClienteFK")] Viatura viaturaAlterada)
         {
             // o FromRoute lê o id da URL, se houve alterações à rota, houve alterações indevidas
             // Verifica se o id da rota corresponde ao da viatura recebida
-            if (id != viatura.ViaturaId)
+            if (id != viaturaAlterada.ViaturaId)
             {
                 return RedirectToAction(nameof(Index));
             }
@@ -112,13 +112,13 @@ namespace FluvAuto.Controllers
             if (viaturaIdSession == null || string.IsNullOrEmpty(acao))
             {
                 ModelState.AddModelError("", "Demorou muito tempo. Já não consegue alterar a viatura. Tem de reiniciar o processo.");
-                ViewData["ClienteFK"] = new SelectList(_context.Clientes, "UtilizadorId", "Email", viatura.ClienteFK);      //TODO: ver se esta linha está certa, ou se é necessária
+                ViewData["ClienteFK"] = new SelectList(_bd.Clientes, "UtilizadorId", "Email", viaturaAlterada.ClienteFK);      //TODO: ver se esta linha está certa, ou se é necessária
                 // supostamente o cliente já estaria selecionado, e não pode alterar o cliente - vem da autenticação
-                return View(viatura);
+                return View(viaturaAlterada);
             }
 
             // Verifica se o ID da sessão corresponde ao da viatura recebida e se a ação é válida
-            if (viaturaIdSession != viatura.ViaturaId || acao != "Viaturas/Edit")
+            if (viaturaIdSession != viaturaAlterada.ViaturaId || acao != "Viaturas/Edit")
             {
                 // O utilizador está a tentar alterar outro objeto diferente do que recebeu
                 return RedirectToAction(nameof(Index));
@@ -128,12 +128,12 @@ namespace FluvAuto.Controllers
             {
                 try
                 {
-                    _context.Update(viatura); // atualiza o objeto viatura na base de dados
-                    await _context.SaveChangesAsync();
+                    _bd.Update(viaturaAlterada); // atualiza o objeto viatura na base de dados
+                    await _bd.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!ViaturaExists(viatura.ViaturaId))
+                    if (!ViaturaExists(viaturaAlterada.ViaturaId))
                     {
                         return NotFound();
                     }
@@ -144,8 +144,8 @@ namespace FluvAuto.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["ClienteFK"] = new SelectList(_context.Clientes, "UtilizadorId", "Email", viatura.ClienteFK);
-            return View(viatura);
+            ViewData["ClienteFK"] = new SelectList(_bd.Clientes, "UtilizadorId", "Email", viaturaAlterada.ClienteFK);
+            return View(viaturaAlterada);
         }
 
         // GET: Viaturas/Delete/5
@@ -156,7 +156,7 @@ namespace FluvAuto.Controllers
                 return NotFound();
             }
 
-            var viatura = await _context.Viaturas
+            var viatura = await _bd.Viaturas
                 .Include(v => v.Cliente)
                 .FirstOrDefaultAsync(m => m.ViaturaId == id);
             if (viatura == null)
@@ -176,7 +176,7 @@ namespace FluvAuto.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var viatura = await _context.Viaturas.FindAsync(id);
+            var viatura = await _bd.Viaturas.FindAsync(id);
 
             // Verifica se o ID da viatura está guardado na sessão e se a ação é válida
             var viaturaIdSession = HttpContext.Session.GetInt32("ViaturaId");
@@ -195,8 +195,8 @@ namespace FluvAuto.Controllers
 
             if (viatura != null)
             {
-                _context.Viaturas.Remove(viatura);
-                await _context.SaveChangesAsync();
+                _bd.Viaturas.Remove(viatura);
+                await _bd.SaveChangesAsync();
             }
 
             return RedirectToAction(nameof(Index));
@@ -204,7 +204,7 @@ namespace FluvAuto.Controllers
 
         private bool ViaturaExists(int id)
         {
-            return _context.Viaturas.Any(e => e.ViaturaId == id);
+            return _bd.Viaturas.Any(e => e.ViaturaId == id);
         }
     }
 }

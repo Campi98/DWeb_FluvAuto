@@ -30,7 +30,7 @@ public class ApplicationDbContext : IdentityDbContext
     /// <summary>
     /// Tabela que representa os serviços realizados na oficina
     /// </summary>
-    public DbSet<FuncionariosMarcacoes> DadosServicos { get; set; }
+    public DbSet<FuncionariosMarcacoes> FuncionariosMarcacoes { get; set; }
 
     /// <summary>
     /// Tabela que representa as marcações de serviços na oficina
