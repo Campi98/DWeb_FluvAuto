@@ -19,17 +19,17 @@ namespace FluvAuto.Models
         [Required(ErrorMessage = "O {0} é de preenchimento obrigatório.")]
         [StringLength(50)]
         [Display(Name = "Função")]
-        public string Funcao { get; set; }
+        public string Funcao { get; set; } = "";
 
         /// <summary>
         /// Fotografia do funcionário
         /// </summary>
         [Display(Name = "Fotografia (opcional)")]
-        public string Fotografia { get; set; }
+        public string Fotografia { get; set; } = "";
 
         /// <summary>
         /// Lista dos serviços realizados pelo funcionário
         /// </summary>
-        public ICollection<FuncionariosMarcacoes> ServicosRealizados { get; set; }
+        public ICollection<FuncionariosMarcacoes> ServicosRealizados { get; set; } = [];
     }
 }
