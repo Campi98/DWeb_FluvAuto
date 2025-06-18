@@ -10,6 +10,7 @@ using System.Text;
 using System.Text.Encodings.Web;
 using System.Threading;
 using System.Threading.Tasks;
+using FluvAuto.Data;
 using FluvAuto.Models;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
@@ -18,6 +19,7 @@ using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.WebUtilities;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
 namespace FluvAuto.Areas.Identity.Pages.Account
@@ -30,13 +32,15 @@ namespace FluvAuto.Areas.Identity.Pages.Account
         private readonly IUserEmailStore<IdentityUser> _emailStore;
         private readonly ILogger<RegisterModel> _logger;
         private readonly IEmailSender _emailSender;
+        private readonly ApplicationDbContext _context;
 
         public RegisterModel(
             UserManager<IdentityUser> userManager,
             IUserStore<IdentityUser> userStore,
             SignInManager<IdentityUser> signInManager,
             ILogger<RegisterModel> logger,
-            IEmailSender emailSender)
+            IEmailSender emailSender,
+            ApplicationDbContext context)
         {
             _userManager = userManager;
             _userStore = userStore;
@@ -44,6 +48,7 @@ namespace FluvAuto.Areas.Identity.Pages.Account
             _signInManager = signInManager;
             _logger = logger;
             _emailSender = emailSender;
+            _context = context;
         }
 
         /// <summary>
@@ -128,6 +133,35 @@ namespace FluvAuto.Areas.Identity.Pages.Account
                 {
                     _logger.LogInformation("User created a new account with password.");
 
+                    // +++++++++++++++++++++++++++++++++++++++++++++++
+                    // Guardar os dados do Cliente na base de dados
+                    // +++++++++++++++++++++++++++++++++++++++++++++++
+
+                    bool haErro = false;
+
+                    // Associar o UserName do utilizador Identity ao Cliente
+                    Input.Cliente.UserName = Input.Email;
+                    Input.Cliente.Email = Input.Email;
+
+                    try
+                    {
+                        _context.Add(Input.Cliente);
+                        await _context.SaveChangesAsync();
+                    }
+                    catch (Exception)
+                    {
+                        haErro = true;
+                        // throw; // pode lançar ou tratar de outra forma
+                    }
+
+                    // Se houve erro ao guardar o Cliente, apaga o utilizador Identity criado
+                    if (haErro)
+                    {
+                        await _userManager.DeleteAsync(user);
+                        ModelState.AddModelError("", "Ocorreu um erro ao criar o utilizador. Tente novamente.");
+                        return Page();
+                    }
+
                     var userId = await _userManager.GetUserIdAsync(user);
                     var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
                     code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
@@ -150,13 +184,11 @@ namespace FluvAuto.Areas.Identity.Pages.Account
                         return LocalRedirect(returnUrl);
                     }
                 }
-                foreach (var error in result.Errors)
-                {
-                    ModelState.AddModelError(string.Empty, error.Description);
-                }
-            }
 
-            // If we got this far, something failed, redisplay form
+                // If we got this far, something failed, redisplay form
+                return Page();
+            }
+            // If ModelState is not valid, redisplay form
             return Page();
         }
 
