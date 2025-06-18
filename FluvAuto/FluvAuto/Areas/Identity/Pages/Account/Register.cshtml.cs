@@ -10,6 +10,7 @@ using System.Text;
 using System.Text.Encodings.Web;
 using System.Threading;
 using System.Threading.Tasks;
+using FluvAuto.Models;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -70,6 +71,11 @@ namespace FluvAuto.Areas.Identity.Pages.Account
         /// </summary>
         public class InputModel
         {
+
+            public Cliente Cliente { get; set; } = new Cliente();
+
+ 
+
             /// <summary>
             ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
             ///     directly from your code. This API may change or be removed in future releases.
