@@ -20,11 +20,11 @@ namespace FluvAuto.Models
         [StringLength(9)]
         [RegularExpression("[1-9][0-9]{8}", ErrorMessage = "Deve escrever apenas 9 dígitos no {0}")]
         [Required(ErrorMessage = "O {0} é de preenchimento obrigatório")]
-        public string NIF { get; set; }
+        public string NIF { get; set; } = "";
 
         /// <summary>
         /// Lista das viaturas do cliente
         /// </summary>
-        public ICollection<Viatura> Viaturas { get; set; }
+        public ICollection<Viatura> Viaturas { get; set; } = [];
     }
 }

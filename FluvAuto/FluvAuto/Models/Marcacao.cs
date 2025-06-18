@@ -21,7 +21,6 @@ namespace FluvAuto.Models
         [Display(Name = "Data de Marcação")]
         public DateTime DataMarcacaoFeita { get; set; }
 
-
         /// <summary>
         /// Data e hora prevista para o início do serviço
         /// </summary>
@@ -41,14 +40,14 @@ namespace FluvAuto.Models
         [Required(ErrorMessage = "O {0} é de preenchimento obrigatório.")]
         [StringLength(200)]
         [Display(Name = "Serviço(s)")]
-        public string Servico { get; set; }         //TODO: isto seria só uma textarea? ou uma lista de serviços?
+        public string Servico { get; set; } = "";
 
         /// <summary>
         /// Descrição adicional sobre a marcação, por parte do cliente
         /// </summary>
         [StringLength(500)]
         [Display(Name = "Observações (opcional)")]
-        public string Observacoes { get; set; }
+        public string Observacoes { get; set; } = "";
 
         /// <summary>
         /// Estado da marcação (ex: Agendada, Em Progresso, Concluída, Cancelada)
@@ -57,7 +56,7 @@ namespace FluvAuto.Models
         [Display(Name = "Estado")]
         [RegularExpression("^(Agendada|Em Progresso|Concluída|Cancelada)$",
             ErrorMessage = "O estado deve ser: Agendada, Em Progresso, Concluída ou Cancelada")]
-        public string Estado { get; set; }
+        public string Estado { get; set; } = "";
 
         /// <summary>
         /// FK para referenciar a viatura da marcação
@@ -70,6 +69,6 @@ namespace FluvAuto.Models
         /// <summary>
         /// Lista dos detalhes de serviços associados à marcação
         /// </summary>
-        public ICollection<FuncionariosMarcacoes> DadosServicos { get; set; }       //TODO: isto existe por causa do DERE que tínhamos anteriormente? VER se é para remover
+        public ICollection<FuncionariosMarcacoes> DadosServicos { get; set; } = new List<FuncionariosMarcacoes>();
     }
 }

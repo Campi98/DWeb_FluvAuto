@@ -20,7 +20,7 @@ namespace FluvAuto.Models
         [Required(ErrorMessage = "A {0} é de preenchimento obrigatório.")]
         [Display(Name = "Marca")]
         [StringLength(30)]
-        public string Marca { get; set; }
+        public string Marca { get; set; } = "";
 
         /// <summary>
         /// Modelo da viatura
@@ -28,7 +28,7 @@ namespace FluvAuto.Models
         [Required(ErrorMessage = "O {0} é de preenchimento obrigatório.")]
         [Display(Name = "Modelo")]
         [StringLength(50)]
-        public string Modelo { get; set; }
+        public string Modelo { get; set; } = "";
 
         /// <summary>
         /// Matrícula da viatura
@@ -38,7 +38,7 @@ namespace FluvAuto.Models
         [StringLength(20)]
         [RegularExpression(@"^(([A-Za-z]{2}-[A-Za-z]{2}-[0-9]{2})|([0-9]{2}-[0-9]{2}-[A-Za-z]{2})|([A-Za-z]{2}-[0-9]{2}-[A-Za-z]{2})|([0-9]{2}-[A-Za-z]{2}-[0-9]{2})|([A-Za-z]{2}-[0-9]{2}-[0-9]{2})|([0-9]{2}-[A-Za-z]{2}-[A-Za-z]{2}))$",
             ErrorMessage = "A matrícula deve ter o formato XX-YY-ZZ, com máximo de 4 letras e 2 números ou 4 números e 2 letras.")]
-        public string Matricula { get; set; }
+        public string Matricula { get; set; } = "";
 
         /// <summary>
         /// Ano de fabrico da viatura
@@ -54,7 +54,7 @@ namespace FluvAuto.Models
         [Required(ErrorMessage = "A {0} é de preenchimento obrigatório.")]
         [Display(Name = "Cor")]
         [StringLength(30)]
-        public string Cor { get; set; }
+        public string Cor { get; set; } = "";
 
         /// <summary>
         /// Tipo de combustível da viatura
@@ -63,7 +63,7 @@ namespace FluvAuto.Models
         [Display(Name = "Combustível")]
         [RegularExpression("^(Gasolina|Diesel|Elétrico|Híbrido|GPL)$",
             ErrorMessage = "O combustível deve ser Gasolina, Diesel, GPL, Elétrico ou Híbrido")]
-        public string Combustivel { get; set; }
+        public string Combustivel { get; set; } = "";
 
         /// <summary>
         /// Motorização da viatura
@@ -71,7 +71,7 @@ namespace FluvAuto.Models
         [Required(ErrorMessage = "A {0} é de preenchimento obrigatório.")]
         [Display(Name = "Motorização")]
         [StringLength(50)]
-        public string Motorizacao { get; set; }
+        public string Motorizacao { get; set; } = "";
 
         /// <summary>
         /// FK para referenciar o cliente proprietário da viatura
@@ -84,7 +84,7 @@ namespace FluvAuto.Models
         /// <summary>
         /// Lista de marcações associadas à viatura
         /// </summary>
-        public ICollection<Marcacao> Marcacoes { get; set; }
+        public ICollection<Marcacao> Marcacoes { get; set; } = new List<Marcacao>();
     }
 
     /// <summary>

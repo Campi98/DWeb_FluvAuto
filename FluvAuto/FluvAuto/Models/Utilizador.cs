@@ -14,7 +14,7 @@ namespace FluvAuto.Models
         public int UtilizadorId { get; set; }
 
 
-        public string UserName { get; set; }      // ligação identity - local
+        public string UserName { get; set; } = "";     // ligação identity - local
 
         /// <summary>
         /// Nome do utilizador
@@ -22,7 +22,7 @@ namespace FluvAuto.Models
         [Required(ErrorMessage = "O {0} é de preenchimento obrigatório.")]
         [StringLength(100)]
         [Display(Name = "Nome")]
-        public string Nome { get; set; }
+        public string Nome { get; set; } = "";
 
         /// <summary>
         /// Email do utilizador
@@ -31,7 +31,7 @@ namespace FluvAuto.Models
         [StringLength(100)]
         // [EmailAddress(ErrorMessage = "Introduza um {0} válido.")]                TODO: podemos usar isto?
         [Display(Name = "Email")]
-        public string Email { get; set; }
+        public string Email { get; set; } = "";
 
         /// <summary>
         /// Número de telefone do utilizador
@@ -41,7 +41,7 @@ namespace FluvAuto.Models
         [Display(Name = "Telemóvel")]
         [StringLength(18)]
         [RegularExpression("(([+]|00)[0-9]{1,5})?[1-9][0-9]{5,10}", ErrorMessage = "Escreva um nº de telefone. Pode adicionar indicativo do país.")]
-        public string Telefone { get; set; }
+        public string Telefone { get; set; } = "";
         /*  9[1236][0-9]{7}  --> nºs telemóvel nacional
          *  (([+]|00)[0-9]{1,5})?[1-9][0-9]{5,10}  -->  nºs telefone internacionais
          */
