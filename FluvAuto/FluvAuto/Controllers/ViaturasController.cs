@@ -122,7 +122,7 @@ namespace FluvAuto.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit([FromRoute] int id, [Bind("ViaturaId,Marca,Modelo,Matricula,Ano,Cor,Combustivel,Motorizacao,ClienteFK")] Viatura viaturaAlterada)
+        public async Task<IActionResult> Edit([FromRoute] int id, [Bind("ViaturaId,Marca,Modelo,Matricula,Ano,Cor,Combustivel,Motorizacao")] Viatura viaturaAlterada)
         {
             // o FromRoute lê o id da URL, se houve alterações à rota, houve alterações indevidas
             // Verifica se o id da rota corresponde ao da viatura recebida
@@ -137,7 +137,7 @@ namespace FluvAuto.Controllers
             if (viaturaIdSession == null || string.IsNullOrEmpty(acao))
             {
                 ModelState.AddModelError("", "Demorou muito tempo. Já não consegue alterar a viatura. Tem de reiniciar o processo.");
-                ViewData["ClienteFK"] = new SelectList(_bd.Clientes, "UtilizadorId", "Email", viaturaAlterada.ClienteFK);      //TODO: ver se esta linha está certa, ou se é necessária
+                //ViewData["ClienteFK"] = new SelectList(_bd.Clientes, "UtilizadorId", "Email", viaturaAlterada.ClienteFK);      //TODO: ver se esta linha está certa, ou se é necessária
                 // supostamente o cliente já estaria selecionado, e não pode alterar o cliente - vem da autenticação
                 return View(viaturaAlterada);
             }
@@ -148,6 +148,28 @@ namespace FluvAuto.Controllers
                 // O utilizador está a tentar alterar outro objeto diferente do que recebeu
                 return RedirectToAction(nameof(Index));
             }
+
+            // Obter o username do utilizador autenticado
+            var username = User.Identity?.Name;
+            if (string.IsNullOrEmpty(username))
+            {
+                ModelState.AddModelError(string.Empty, "Utilizador não autenticado.");
+                return View(viaturaAlterada);
+            }
+            // Obter o ID do utilizador autenticado
+            var clienteId = _bd.Clientes
+                .Where(c => c.UserName == username)
+                .Select(c => c.UtilizadorId)
+                .FirstOrDefault();
+
+            if (clienteId == 0)
+            {
+                ModelState.AddModelError(string.Empty, "Cliente não encontrado.");
+                return View(viaturaAlterada);
+            }
+
+            // Associar o cliente autenticado à viatura
+            viaturaAlterada.ClienteFK = clienteId;
 
             if (ModelState.IsValid)
             {
@@ -169,7 +191,7 @@ namespace FluvAuto.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["ClienteFK"] = new SelectList(_bd.Clientes, "UtilizadorId", "Email", viaturaAlterada.ClienteFK);
+            //ViewData["ClienteFK"] = new SelectList(_bd.Clientes, "UtilizadorId", "Email", viaturaAlterada.ClienteFK);
             return View(viaturaAlterada);
         }
 
