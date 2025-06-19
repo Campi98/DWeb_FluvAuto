@@ -7,9 +7,11 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using FluvAuto.Data;
 using FluvAuto.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace FluvAuto.Controllers
 {
+    [Authorize]
     public class ViaturasController : Controller
     {
         private readonly ApplicationDbContext _bd;
@@ -57,15 +59,26 @@ namespace FluvAuto.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("ViaturaId,Marca,Modelo,Matricula,Ano,Cor,Combustivel,Motorizacao,ClienteFK")] Viatura viaturaNova)
+        public async Task<IActionResult> Create([Bind("ViaturaId,Marca,Modelo,Matricula,Ano,Cor,Combustivel,Motorizacao")] Viatura viaturaNova)
         {
             if (ModelState.IsValid)
             {
+                // Obter o username do utilizador autenticado
+                var username = User.Identity.Name;
+                // Obter o ID do utilizador autenticado
+                var clienteId = _bd.Clientes
+                    .Where(c => c.UserName == username)
+                    .Select(c => c.UtilizadorId)
+                    .FirstOrDefault();
+
+                // Associar o cliente autenticado à viatura
+                viaturaNova.ClienteFK = clienteId;
+
                 _bd.Add(viaturaNova);
                 await _bd.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["ClienteFK"] = new SelectList(_bd.Clientes, "UtilizadorId", "Email", viaturaNova.ClienteFK);
+            //ViewData["ClienteFK"] = new SelectList(_bd.Clientes, "UtilizadorId", "Email", viaturaNova.ClienteFK);
             return View(viaturaNova);
         }
 
