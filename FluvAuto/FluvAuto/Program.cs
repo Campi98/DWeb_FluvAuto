@@ -24,6 +24,15 @@ builder.Services.AddDistributedMemoryCache();
 
 var app = builder.Build();
 
+// Inicializar a base de dados com dados de seed
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    var context = services.GetRequiredService<ApplicationDbContext>();
+    var userManager = services.GetRequiredService<UserManager<IdentityUser>>();
+    DBInitializer.Initialize(context, userManager);
+}
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
