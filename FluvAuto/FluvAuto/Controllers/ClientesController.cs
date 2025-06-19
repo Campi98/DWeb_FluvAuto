@@ -7,9 +7,11 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using FluvAuto.Data;
 using FluvAuto.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace FluvAuto.Controllers
 {
+    [Authorize]
     public class ClientesController : Controller
     {
         private readonly ApplicationDbContext _bd;
@@ -42,6 +44,8 @@ namespace FluvAuto.Controllers
 
             return View(cliente);
         }
+
+        //TODO: Tirar estes dois creates pois a criação do user é feita no register do identity? apagar view também?
 
         // GET: Clientes/Create
         public IActionResult Create()

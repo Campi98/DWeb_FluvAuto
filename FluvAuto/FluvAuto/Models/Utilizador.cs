@@ -27,7 +27,6 @@ namespace FluvAuto.Models
         /// <summary>
         /// Email do utilizador
         /// </summary>
-        [Required(ErrorMessage = "O {0} é de preenchimento obrigatório.")]
         [StringLength(100)]
         // [EmailAddress(ErrorMessage = "Introduza um {0} válido.")]                TODO: podemos usar isto?
         [Display(Name = "Email")]

@@ -1,0 +1,70 @@
+﻿@page
+@model RegisterModel
+@{
+    ViewData["Title"] = "Registar";
+}
+
+<h1>@ViewData["Title"]</h1>
+
+<form id="registerForm" asp-route-returnUrl="@Model.ReturnUrl" method="post">
+    <h2>Criar uma nova conta de Cliente.</h2>
+    <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
+
+    <div class="row">
+        <div class="col-md-6">
+            <hr />
+            <div class="form-floating mb-3">
+                <input asp-for="Input.Cliente.Nome" class="form-control" autocomplete="name" aria-required="true" placeholder="Nome completo" />
+                <label asp-for="Input.Cliente.Nome"></label>
+                <span asp-validation-for="Input.Cliente.Nome" class="text-danger"></span>
+            </div>
+            <div class="form-floating mb-3">
+                <input asp-for="Input.Email" class="form-control" autocomplete="email" aria-required="true" placeholder="name@example.com" />
+                <label asp-for="Input.Email"></label>
+                <span asp-validation-for="Input.Email" class="text-danger"></span>
+            </div>
+            <div class="form-floating mb-3">
+                <input asp-for="Input.Password" class="form-control" autocomplete="new-password" aria-required="true" placeholder="Password" />
+                <label asp-for="Input.Password"></label>
+                <span asp-validation-for="Input.Password" class="text-danger"></span>
+            </div>
+            <div class="form-floating mb-3">
+                <input asp-for="Input.ConfirmPassword" class="form-control" autocomplete="new-password" aria-required="true" placeholder="Confirmar Password" />
+                <label asp-for="Input.ConfirmPassword"></label>
+                <span asp-validation-for="Input.ConfirmPassword" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <hr />
+            <div class="form-floating mb-3">
+                <input asp-for="Input.Cliente.Telefone" class="form-control" autocomplete="tel" aria-required="true" placeholder="Telefone" />
+                <label asp-for="Input.Cliente.Telefone"></label>
+                <span asp-validation-for="Input.Cliente.Telefone" class="text-danger"></span>
+            </div>
+            <div class="form-floating mb-3">
+                <input asp-for="Input.Cliente.Morada" class="form-control" autocomplete="street-address" aria-required="true" placeholder="Morada" />
+                <label asp-for="Input.Cliente.Morada"></label>
+                <span asp-validation-for="Input.Cliente.Morada" class="text-danger"></span>
+            </div>
+            <div class="form-floating mb-3">
+                <input asp-for="Input.Cliente.CodPostal" class="form-control" autocomplete="postal-code" aria-required="true" placeholder="Código Postal" />
+                <label asp-for="Input.Cliente.CodPostal"></label>
+                <span asp-validation-for="Input.Cliente.CodPostal" class="text-danger"></span>
+            </div>
+            <div class="form-floating mb-3">
+                <input asp-for="Input.Cliente.NIF" class="form-control" autocomplete="off" aria-required="true" placeholder="NIF" />
+                <label asp-for="Input.Cliente.NIF"></label>
+                <span asp-validation-for="Input.Cliente.NIF" class="text-danger"></span>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-4">
+            <button id="registerSubmit" type="submit" class="w-100 btn btn-lg btn-primary">Criar Cliente</button>
+        </div>
+    </div>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

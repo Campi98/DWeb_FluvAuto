@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 
 namespace FluvAuto.Models
 {
@@ -79,7 +80,9 @@ namespace FluvAuto.Models
         [ForeignKey(nameof(Cliente))]
         [Display(Name = "Cliente")]
         public int ClienteFK { get; set; }
-        public Cliente Cliente { get; set; }
+
+        [ValidateNever]
+        public Cliente? Cliente { get; set; }
 
         /// <summary>
         /// Lista de marcações associadas à viatura
