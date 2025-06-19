@@ -50,7 +50,7 @@ namespace FluvAuto.Controllers
         // GET: Viaturas/Create
         public IActionResult Create()
         {
-            ViewData["ClienteFK"] = new SelectList(_bd.Clientes, "UtilizadorId", "Email");
+            //ViewData["ClienteFK"] = new SelectList(_bd.Clientes, "UtilizadorId", "Email");
             return View();
         }
 
@@ -61,19 +61,31 @@ namespace FluvAuto.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("ViaturaId,Marca,Modelo,Matricula,Ano,Cor,Combustivel,Motorizacao")] Viatura viaturaNova)
         {
+            // Obter o username do utilizador autenticado
+            var username = User.Identity?.Name;
+            if (string.IsNullOrEmpty(username))
+            {
+                // Se não houver utilizador autenticado, retorna erro
+                ModelState.AddModelError(string.Empty, "Utilizador não autenticado.");
+                return View(viaturaNova);
+            }
+            // Obter o ID do utilizador autenticado
+            var clienteId = _bd.Clientes
+                .Where(c => c.UserName == username)
+                .Select(c => c.UtilizadorId)
+                .FirstOrDefault();
+
+            if (clienteId == 0)
+            {
+                ModelState.AddModelError(string.Empty, "Cliente não encontrado.");
+                return View(viaturaNova);
+            }
+
+            // Associar o cliente autenticado à viatura
+            viaturaNova.ClienteFK = clienteId;
+
             if (ModelState.IsValid)
             {
-                // Obter o username do utilizador autenticado
-                var username = User.Identity.Name;
-                // Obter o ID do utilizador autenticado
-                var clienteId = _bd.Clientes
-                    .Where(c => c.UserName == username)
-                    .Select(c => c.UtilizadorId)
-                    .FirstOrDefault();
-
-                // Associar o cliente autenticado à viatura
-                viaturaNova.ClienteFK = clienteId;
-
                 _bd.Add(viaturaNova);
                 await _bd.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
