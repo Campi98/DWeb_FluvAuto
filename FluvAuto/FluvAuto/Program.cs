@@ -5,6 +5,8 @@ using System.Text.Json.Serialization;
 using FluvAuto.Services;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using Microsoft.OpenApi.Models;
+using System.Reflection;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -66,6 +68,23 @@ builder.Services.AddAuthentication(options => { })
 // configuração do JWT
 builder.Services.AddScoped<TokenService>();
 
+// Adiciona o Swagger
+// builder.Services.AddEndpointsApiExplorer();   // necessária apenas para APIs mínimas. 
+builder.Services.AddSwaggerGen();
+
+builder.Services.AddSwaggerGen(c => {
+    c.SwaggerDoc("v1", new OpenApiInfo
+    {
+        Title = "Minha API de Gestão de uma Oficina",
+        Version = "v1",
+        Description = "API para gestão de viaturas, marcações e utilizadores"
+    });
+    // Caminho para o XML gerado
+    var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+    var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+    c.IncludeXmlComments(xmlPath);
+});
+
 var app = builder.Build();
 
 // Inicializar a base de dados com dados de seed
@@ -81,6 +100,10 @@ using (var scope = app.Services.CreateScope())
 if (app.Environment.IsDevelopment())
 {
     app.UseMigrationsEndPoint();
+
+    // iniciar o 'middleware' do Swagger
+    app.UseSwagger();
+    app.UseSwaggerUI();
 }
 else
 {
