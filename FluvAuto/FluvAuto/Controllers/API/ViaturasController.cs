@@ -14,25 +14,34 @@ namespace FluvAuto.Controllers.API
     [ApiController]
     public class ViaturasController : ControllerBase
     {
-        private readonly ApplicationDbContext _context;
+        private readonly ApplicationDbContext _bd;
 
         public ViaturasController(ApplicationDbContext context)
         {
-            _context = context;
+            _bd = context;
         }
 
         // GET: api/Viaturas
+        /// <summary>
+        /// Obtém a lista de todas as viaturas registadas na base de dados.
+        /// </summary>
+        /// <returns></returns>
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Viatura>>> GetViaturas()
         {
-            return await _context.Viaturas.ToListAsync();
+            return await _bd.Viaturas.ToListAsync();
         }
 
         // GET: api/Viaturas/5
+        /// <summary>
+        /// Obtém uma viatura específica com base no seu ID.
+        /// </summary>
+        /// <param name="id"> Identificador da viatura pretendida </param>
+        /// <returns></returns>
         [HttpGet("{id}")]
         public async Task<ActionResult<Viatura>> GetViatura(int id)
         {
-            var viatura = await _context.Viaturas.FindAsync(id);
+            var viatura = await _bd.Viaturas.FindAsync(id);
 
             if (viatura == null)
             {
@@ -43,20 +52,26 @@ namespace FluvAuto.Controllers.API
         }
 
         // PUT: api/Viaturas/5
+        /// <summary>
+        /// Atualiza uma viatura existente na base de dados com base no seu ID.
+        /// </summary>
+        /// <param name="id"> Identificação da viatura a editar </param>
+        /// <param name="viaturaAlterada"> Novos dados da viatura </param>
+        /// <returns></returns>
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutViatura(int id, Viatura viatura)
+        public async Task<IActionResult> PutViatura(int id, Viatura viaturaAlterada)
         {
-            if (id != viatura.ViaturaId)
+            if (id != viaturaAlterada.ViaturaId)
             {
                 return BadRequest();
             }
 
-            _context.Entry(viatura).State = EntityState.Modified;
+            _bd.Entry(viaturaAlterada).State = EntityState.Modified;
 
             try
             {
-                await _context.SaveChangesAsync();
+                await _bd.SaveChangesAsync();
             }
             catch (DbUpdateConcurrencyException)
             {
@@ -74,35 +89,50 @@ namespace FluvAuto.Controllers.API
         }
 
         // POST: api/Viaturas
+        /// <summary>
+        /// Cria uma nova viatura na base de dados.
+        /// </summary>
+        /// <param name="viaturaNova"> Dados da viatura a ser criada</param>
+        /// <returns></returns>
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<Viatura>> PostViatura(Viatura viatura)
+        public async Task<ActionResult<Viatura>> PostViatura(Viatura viaturaNova)
         {
-            _context.Viaturas.Add(viatura);
-            await _context.SaveChangesAsync();
+            _bd.Viaturas.Add(viaturaNova);
+            await _bd.SaveChangesAsync();
 
-            return CreatedAtAction("GetViatura", new { id = viatura.ViaturaId }, viatura);
+            return CreatedAtAction("GetViatura", new { id = viaturaNova.ViaturaId }, viaturaNova);
         }
 
         // DELETE: api/Viaturas/5
+        /// <summary>
+        /// Remove uma viatura da base de dados com base no seu ID.
+        /// </summary>
+        /// <param name="id"> Identificador da viatura a apagar </param>
+        /// <returns></returns>
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteViatura(int id)
         {
-            var viatura = await _context.Viaturas.FindAsync(id);
+            var viatura = await _bd.Viaturas.FindAsync(id);
             if (viatura == null)
             {
                 return NotFound();
             }
 
-            _context.Viaturas.Remove(viatura);
-            await _context.SaveChangesAsync();
+            _bd.Viaturas.Remove(viatura);
+            await _bd.SaveChangesAsync();
 
             return NoContent();
         }
 
+        /// <summary>
+        /// Verifica se uma viatura com o ID especificado já existe na base de dados.
+        /// </summary>
+        /// <param name="id"> Identificador da viatura a procurar </param>
+        /// <returns> 'true', se a viatura existe, senão 'false' </returns>
         private bool ViaturaExists(int id)
         {
-            return _context.Viaturas.Any(e => e.ViaturaId == id);
+            return _bd.Viaturas.Any(e => e.ViaturaId == id);
         }
     }
 }
