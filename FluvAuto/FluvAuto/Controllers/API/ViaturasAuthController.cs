@@ -32,7 +32,10 @@ namespace FluvAuto.Controllers.API
         [AllowAnonymous] // Permite acesso anónimo para obter a lista de viaturas
         public async Task<ActionResult<IEnumerable<Viatura>>> GetViaturas()
         {
-            return await _bd.Viaturas.ToListAsync();
+            return await _bd.Viaturas   // não entendi bem pq o prof fez isto aqui; será para enviar o cliente e marcações associadas?
+                                    .Include(v => v.Cliente)
+                                    .Include(v => v.Marcacoes)
+                                    .ToListAsync();
         }
 
         // GET: api/Viaturas/5
