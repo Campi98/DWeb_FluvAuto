@@ -5,6 +5,8 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <UserSecretsId>aspnet-FluvAuto-a9a37072-e15a-4265-9611-c1759b0ca841</UserSecretsId>
+	<GenerateDocumentationFile>true</GenerateDocumentationFile>
+	<NoWarn>$(NoWarn);1591</NoWarn>	   <!-- Evita warnings por falta de comentários -->
   </PropertyGroup>
 
   <ItemGroup>

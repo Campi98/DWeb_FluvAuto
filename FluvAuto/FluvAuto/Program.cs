@@ -79,6 +79,10 @@ builder.Services.AddSwaggerGen(c => {
         Version = "v1",
         Description = "API para gestão de viaturas, marcações e utilizadores"
     });
+    // Caminho para o XML gerado
+    var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+    var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+    c.IncludeXmlComments(xmlPath);
 });
 
 var app = builder.Build();
