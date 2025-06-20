@@ -14,6 +14,11 @@ namespace FluvAuto.Controllers.API
     [Route("api/[controller]")]
     [ApiController]
     [Authorize(Roles = "Admin,Gestor,Cliente")]     //TODO: AINDA NÃO SE FEZ NADA DE ROLES
+
+    // [Authorize(AuthenticationSchemes ="Bearer")] // Auth por JWT
+    // Supostamente ia buscar-se o IEnumerable com o ViaturasByUserDTO
+    // falta passar os dados da pessoa autenticada aqui para dentro
+
     public class ViaturasAuthController : ControllerBase
     {
         private readonly ApplicationDbContext _bd;
