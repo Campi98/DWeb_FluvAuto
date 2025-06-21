@@ -52,6 +52,7 @@ namespace FluvAuto.Controllers
 
             var marcacao = await _bd.Marcacoes
                 .Include(m => m.Viatura)
+                    .ThenInclude(v => v.Cliente)
                 .FirstOrDefaultAsync(m => m.MarcacaoId == id);
             if (marcacao == null)
             {

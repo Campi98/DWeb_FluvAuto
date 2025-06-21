@@ -71,7 +71,7 @@
                 @if (isAdminOrFuncionario)
                 {
                     <td>
-                        @(item.Viatura?.Cliente?.Nome ?? "-")
+                        @Html.Raw((item.Viatura?.Cliente?.Nome ?? "-") + "<br />" + (item.Viatura?.Cliente?.Telefone ?? "-"))
                     </td>
                 }
                 <td>

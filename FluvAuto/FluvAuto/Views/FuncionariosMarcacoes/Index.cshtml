@@ -34,6 +34,10 @@
             <th>
                 Viatura
             </th>
+            @if (isAdminOrFuncionario)
+            {
+                <th>Cliente</th>
+            }
             <th></th>
         </tr>
     </thead>
@@ -57,21 +61,26 @@
                     @Html.DisplayFor(modelItem => item.Funcionario.Nome)
                 </td>
                 <td>
-                    @(item.Marcacao?.Viatura != null ? ($"{item.Marcacao.Viatura.Marca} - {item.Marcacao.Viatura.Modelo}") :
-                                    "-")<br />
-                <span>@(item.Marcacao?.Viatura?.Matricula ?? "")</span>
-            </td>
-            <td>
+                    @(item.Marcacao?.Viatura != null ? ($"{item.Marcacao.Viatura.Marca} - {item.Marcacao.Viatura.Modelo}") : "-")<br />
+                    <span>@(item.Marcacao?.Viatura?.Matricula ?? "")</span>
+                </td>
                 @if (isAdminOrFuncionario)
                 {
-                    @Html.ActionLink("Edit", "Edit", new { marcacaoId = item.MarcacaoFK, funcionarioId = item.FuncionarioFK })
-                    @: |
-                    @Html.ActionLink("Delete", "Delete", new { marcacaoId = item.MarcacaoFK, funcionarioId = item.FuncionarioFK })
-                    @: |
+                    <td>
+                        @Html.Raw((item.Marcacao?.Viatura?.Cliente?.Nome ?? "-") + "<br />" + (item.Marcacao?.Viatura?.Cliente?.Telefone ?? "-"))
+                    </td>
                 }
-                @Html.ActionLink("Details", "Details", new { marcacaoId = item.MarcacaoFK, funcionarioId = item.FuncionarioFK })
-            </td>
-        </tr>
+                <td>
+                    @if (isAdminOrFuncionario)
+                    {
+                        @Html.ActionLink("Edit", "Edit", new { marcacaoId = item.MarcacaoFK, funcionarioId = item.FuncionarioFK })
+                        @: |
+                        @Html.ActionLink("Delete", "Delete", new { marcacaoId = item.MarcacaoFK, funcionarioId = item.FuncionarioFK })
+                        @: |
+                    }
+                    @Html.ActionLink("Details", "Details", new { marcacaoId = item.MarcacaoFK, funcionarioId = item.FuncionarioFK })
+                </td>
+            </tr>
         }
     </tbody>
 </table>

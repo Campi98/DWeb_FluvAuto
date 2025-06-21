@@ -47,6 +47,15 @@
         <dd class = "col-sm-10">
             @(Model.Marcacao?.Viatura != null ? ($"{Model.Marcacao.Viatura.Marca} {Model.Marcacao.Viatura.Modelo} - {Model.Marcacao.Viatura.Matricula}") : "-")
         </dd>
+        @if (isAdminOrFuncionario)
+        {
+            <dt class = "col-sm-2">
+                Cliente
+            </dt>
+            <dd class = "col-sm-10">
+                @Html.Raw((Model.Marcacao?.Viatura?.Cliente?.Nome ?? "-") + "<br />" + (Model.Marcacao?.Viatura?.Cliente?.Telefone ?? "-"))
+            </dd>
+        }
     </dl>
 </div>
 <div>

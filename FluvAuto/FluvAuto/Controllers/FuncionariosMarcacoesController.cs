@@ -26,7 +26,11 @@ namespace FluvAuto.Controllers
         {
             if (User.IsInRole("admin") || User.IsInRole("funcionario"))
             {
-                var applicationDbContext = _bd.FuncionariosMarcacoes.Include(f => f.Funcionario).Include(f => f.Marcacao).ThenInclude(m => m.Viatura);
+                var applicationDbContext = _bd.FuncionariosMarcacoes
+                    .Include(f => f.Funcionario)
+                    .Include(f => f.Marcacao)
+                        .ThenInclude(m => m.Viatura)
+                            .ThenInclude(v => v.Cliente);
                 return View(await applicationDbContext.ToListAsync());
             }
             // Cliente: só vê marcações das suas viaturas
@@ -35,7 +39,9 @@ namespace FluvAuto.Controllers
             var viaturasIds = _bd.Viaturas.Where(v => v.ClienteFK == clienteId).Select(v => v.ViaturaId).ToList();
             var marcacoesCliente = _bd.FuncionariosMarcacoes
                 .Include(f => f.Funcionario)
-                .Include(f => f.Marcacao).ThenInclude(m => m.Viatura)
+                .Include(f => f.Marcacao)
+                    .ThenInclude(m => m.Viatura)
+                        .ThenInclude(v => v.Cliente)
                 .Where(fm => viaturasIds.Contains(fm.Marcacao.ViaturaFK));
             return View(await marcacoesCliente.ToListAsync());
         }
@@ -51,7 +57,9 @@ namespace FluvAuto.Controllers
 
             var funcionariosMarcacoes = await _bd.FuncionariosMarcacoes
                 .Include(f => f.Funcionario)
-                .Include(f => f.Marcacao).ThenInclude(m => m.Viatura)
+                .Include(f => f.Marcacao)
+                    .ThenInclude(m => m.Viatura)
+                        .ThenInclude(v => v.Cliente)
                 .FirstOrDefaultAsync(m => m.MarcacaoFK == marcacaoId && m.FuncionarioFK == funcionarioId);
 
             if (funcionariosMarcacoes == null)
