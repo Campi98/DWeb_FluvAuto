@@ -1,7 +1,7 @@
 ﻿@model IEnumerable<FluvAuto.Models.Viatura>
-
 @{
     ViewData["Title"] = "Index";
+    var isAdminOrFuncionario = User.IsInRole("admin") || User.IsInRole("funcionario");
 }
 
 <h1>Viaturas</h1>
@@ -33,9 +33,10 @@
             <th>
                 @Html.DisplayNameFor(model => model.Motorizacao)
             </th>
-            @*<th>
-                @Html.DisplayNameFor(model => model.Cliente)
-            </th>*@
+            @if (isAdminOrFuncionario)
+            {
+                <th>Cliente</th>
+            }
             <th></th>
         </tr>
     </thead>
@@ -43,7 +44,8 @@
         @foreach (var item in Model)
         {
             var userName = User.Identity?.Name;
-            if (!string.IsNullOrEmpty(userName) && item.Cliente != null && item.Cliente.UserName == userName)
+            if (User.IsInRole("admin") || User.IsInRole("funcionario") || (item.Cliente != null && item.Cliente.UserName ==
+            userName))
             {
                 <tr>
                     <td>
@@ -67,9 +69,12 @@
                     <td>
                         @Html.DisplayFor(modelItem => item.Motorizacao)
                     </td>
-                    @*<td>
-                @Html.DisplayFor(modelItem => item.Cliente.Email)
-            </td>*@
+                    @if (isAdminOrFuncionario)
+                    {
+                        <td>
+                            @Html.Raw((item.Cliente?.Nome ?? "-") + "<br />" + (item.Cliente?.Telefone ?? "-"))
+                        </td>
+                    }
                     <td>
                         <a asp-action="Edit" asp-route-id="@item.ViaturaId">Edit</a> |
                         <a asp-action="Details" asp-route-id="@item.ViaturaId">Details</a> |

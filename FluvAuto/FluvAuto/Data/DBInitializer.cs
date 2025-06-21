@@ -6,10 +6,37 @@ namespace FluvAuto.Data
 {
     public static class DBInitializer
     {
-        public static void Initialize(ApplicationDbContext context, UserManager<IdentityUser> userManager)
+        public static void Initialize(ApplicationDbContext context, UserManager<IdentityUser> userManager, RoleManager<IdentityRole> roleManager)
         {
             // Garantir que a base de dados existe
             context.Database.Migrate();
+
+            // Seed do role admin
+            var adminRole = "admin";
+            if (!roleManager.RoleExistsAsync(adminRole).Result)
+            {
+                roleManager.CreateAsync(new IdentityRole(adminRole)).Wait();
+            }
+
+            // Seed do utilizador admin
+            var adminEmail = "admin@admin.com";
+            var adminUser = userManager.FindByEmailAsync(adminEmail).Result;
+            if (adminUser == null)
+            {
+                adminUser = new IdentityUser { UserName = adminEmail, Email = adminEmail, EmailConfirmed = true };
+                var result = userManager.CreateAsync(adminUser, "Admin12345!").Result;
+                if (result.Succeeded)
+                {
+                    userManager.AddToRoleAsync(adminUser, adminRole).Wait();
+                }
+            }
+
+            // Seed do role funcionario
+            var funcionarioRole = "funcionario";
+            if (!roleManager.RoleExistsAsync(funcionarioRole).Result)
+            {
+                roleManager.CreateAsync(new IdentityRole(funcionarioRole)).Wait();
+            }
 
             // Seed Clientes
             if (!context.Clientes.Any())
@@ -76,6 +103,7 @@ namespace FluvAuto.Data
                 var result1 = userManager.CreateAsync(identityUser1, "Password123!").Result;
                 if (result1.Succeeded)
                 {
+                    userManager.AddToRoleAsync(identityUser1, funcionarioRole).Wait();
                     var funcionario1 = new Funcionario
                     {
                         Nome = "Maria Sousa",
@@ -93,6 +121,7 @@ namespace FluvAuto.Data
                 var result2 = userManager.CreateAsync(identityUser2, "Password123!").Result;
                 if (result2.Succeeded)
                 {
+                    userManager.AddToRoleAsync(identityUser2, funcionarioRole).Wait();
                     var funcionario2 = new Funcionario
                     {
                         Nome = "Rui Alves",
@@ -110,6 +139,7 @@ namespace FluvAuto.Data
                 var result3 = userManager.CreateAsync(identityUser3, "Password123!").Result;
                 if (result3.Succeeded)
                 {
+                    userManager.AddToRoleAsync(identityUser3, funcionarioRole).Wait();
                     var funcionario3 = new Funcionario
                     {
                         Nome = "Inês Costa",

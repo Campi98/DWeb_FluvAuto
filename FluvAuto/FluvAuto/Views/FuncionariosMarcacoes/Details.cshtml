@@ -2,6 +2,7 @@
 
 @{
     ViewData["Title"] = "Details";
+    var isAdminOrFuncionario = User.IsInRole("admin") || User.IsInRole("funcionario");
 }
 
 <h1>Details</h1>
@@ -40,9 +41,28 @@
         <dd class = "col-sm-10">
             @Html.DisplayFor(model => model.Funcionario.Email)
         </dd>
+        <dt class = "col-sm-2">
+            Viatura
+        </dt>
+        <dd class = "col-sm-10">
+            @(Model.Marcacao?.Viatura != null ? ($"{Model.Marcacao.Viatura.Marca} {Model.Marcacao.Viatura.Modelo} - {Model.Marcacao.Viatura.Matricula}") : "-")
+        </dd>
+        @if (isAdminOrFuncionario)
+        {
+            <dt class = "col-sm-2">
+                Cliente
+            </dt>
+            <dd class = "col-sm-10">
+                @Html.Raw((Model.Marcacao?.Viatura?.Cliente?.Nome ?? "-") + "<br />" + (Model.Marcacao?.Viatura?.Cliente?.Telefone ?? "-"))
+            </dd>
+        }
     </dl>
 </div>
 <div>
-    @Html.ActionLink("Edit", "Edit", new { marcacaoId = Model.MarcacaoFK, funcionarioId = Model.FuncionarioFK }) |
+    @if (isAdminOrFuncionario)
+    {
+        @Html.ActionLink("Edit", "Edit", new { marcacaoId = Model.MarcacaoFK, funcionarioId = Model.FuncionarioFK })
+        @: |
+    }
     <a asp-action="Index">Back to List</a>
 </div>

@@ -2,13 +2,17 @@
 
 @{
     ViewData["Title"] = "Index";
+    var isAdminOrFuncionario = User.IsInRole("admin") || User.IsInRole("funcionario");
 }
 
 <h1>Index</h1>
 
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
+@if (isAdminOrFuncionario)
+{
+    <p>
+        <a asp-action="Create">Create New</a>
+    </p>
+}
 <table class="table">
     <thead>
         <tr>
@@ -27,33 +31,56 @@
             <th>
                 @Html.DisplayNameFor(model => model.Funcionario)
             </th>
+            <th>
+                Viatura
+            </th>
+            @if (isAdminOrFuncionario)
+            {
+                <th>Cliente</th>
+            }
             <th></th>
         </tr>
     </thead>
     <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.HorasGastas)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Comentarios)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.DataInicioServico)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Marcacao.Servico)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Funcionario.Email)
-            </td>
-            <td>
-                @Html.ActionLink("Edit", "Edit", new { marcacaoId = item.MarcacaoFK, funcionarioId = item.FuncionarioFK })
-                @Html.ActionLink("Details", "Details", new { marcacaoId = item.MarcacaoFK, funcionarioId = item.FuncionarioFK })
-                @Html.ActionLink("Delete", "Delete", new { marcacaoId = item.MarcacaoFK, funcionarioId = item.FuncionarioFK })
-            </td>
-        </tr>
-}
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.HorasGastas)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Comentarios)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.DataInicioServico)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Marcacao.Servico)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Funcionario.Nome)
+                </td>
+                <td>
+                    @(item.Marcacao?.Viatura != null ? ($"{item.Marcacao.Viatura.Marca} - {item.Marcacao.Viatura.Modelo}") : "-")<br />
+                    <span>@(item.Marcacao?.Viatura?.Matricula ?? "")</span>
+                </td>
+                @if (isAdminOrFuncionario)
+                {
+                    <td>
+                        @Html.Raw((item.Marcacao?.Viatura?.Cliente?.Nome ?? "-") + "<br />" + (item.Marcacao?.Viatura?.Cliente?.Telefone ?? "-"))
+                    </td>
+                }
+                <td>
+                    @if (isAdminOrFuncionario)
+                    {
+                        @Html.ActionLink("Edit", "Edit", new { marcacaoId = item.MarcacaoFK, funcionarioId = item.FuncionarioFK })
+                        @: |
+                        @Html.ActionLink("Delete", "Delete", new { marcacaoId = item.MarcacaoFK, funcionarioId = item.FuncionarioFK })
+                        @: |
+                    }
+                    @Html.ActionLink("Details", "Details", new { marcacaoId = item.MarcacaoFK, funcionarioId = item.FuncionarioFK })
+                </td>
+            </tr>
+        }
     </tbody>
 </table>

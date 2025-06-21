@@ -7,9 +7,11 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using FluvAuto.Data;
 using FluvAuto.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace FluvAuto.Controllers
 {
+    [Authorize]
     public class MarcacoesController : Controller
     {
         private readonly ApplicationDbContext _bd;
@@ -22,8 +24,22 @@ namespace FluvAuto.Controllers
         // GET: Marcacoes
         public async Task<IActionResult> Index()
         {
-            var applicationDbContext = _bd.Marcacoes.Include(m => m.Viatura);
-            return View(await applicationDbContext.ToListAsync());
+            var isAdminOrFuncionario = User.IsInRole("admin") || User.IsInRole("funcionario");
+            if (isAdminOrFuncionario)
+            {
+                var applicationDbContext = _bd.Marcacoes
+                    .Include(m => m.Viatura)
+                    .ThenInclude(v => v.Cliente);
+                return View(await applicationDbContext.ToListAsync());
+            }
+            // Cliente autenticado: só vê as suas próprias marcações
+            var username = User.Identity?.Name;
+            var clienteId = _bd.Clientes.Where(c => c.UserName == username).Select(c => c.UtilizadorId).FirstOrDefault();
+            var marcacoesCliente = _bd.Marcacoes.Include(m => m.Viatura)
+                .ThenInclude(v => v.Cliente)
+                .Where(m => m.Viatura.ClienteFK == clienteId);
+            ViewBag.ClienteId = clienteId;
+            return View(await marcacoesCliente.ToListAsync());
         }
 
         // GET: Marcacoes/Details/5
@@ -36,6 +52,7 @@ namespace FluvAuto.Controllers
 
             var marcacao = await _bd.Marcacoes
                 .Include(m => m.Viatura)
+                    .ThenInclude(v => v.Cliente)
                 .FirstOrDefaultAsync(m => m.MarcacaoId == id);
             if (marcacao == null)
             {
@@ -45,10 +62,39 @@ namespace FluvAuto.Controllers
             return View(marcacao);
         }
 
+        private List<SelectListItem> GetViaturasSelectList(int? selectedViaturaId = null, int? onlyClienteId = null)
+        {
+            List<Viatura> viaturas;
+            if (onlyClienteId.HasValue)
+            {
+                viaturas = _bd.Viaturas.Where(v => v.ClienteFK == onlyClienteId.Value).ToList();
+            }
+            else
+            {
+                var isAdminOrFuncionario = User.IsInRole("admin") || User.IsInRole("funcionario");
+                if (isAdminOrFuncionario)
+                {
+                    viaturas = _bd.Viaturas.ToList();
+                }
+                else
+                {
+                    var username = User.Identity?.Name;
+                    var clienteId = _bd.Clientes.Where(c => c.UserName == username).Select(c => c.UtilizadorId).FirstOrDefault();
+                    viaturas = _bd.Viaturas.Where(v => v.ClienteFK == clienteId).ToList();
+                }
+            }
+            return viaturas.Select(v => new SelectListItem
+            {
+                Value = v.ViaturaId.ToString(),
+                Text = $"{v.Marca} {v.Modelo} ({v.Matricula})",
+                Selected = selectedViaturaId.HasValue && v.ViaturaId == selectedViaturaId.Value
+            }).ToList();
+        }
+
         // GET: Marcacoes/Create
         public IActionResult Create()
         {
-            ViewData["ViaturaFK"] = new SelectList(_bd.Viaturas, "ViaturaId", "Matricula");
+            ViewData["ViaturaFK"] = GetViaturasSelectList();
             return View();
         }
 
@@ -65,10 +111,11 @@ namespace FluvAuto.Controllers
                 await _bd.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["ViaturaFK"] = new SelectList(_bd.Viaturas, "ViaturaId", "Matricula", marcacaoNova.ViaturaFK);
+            ViewData["ViaturaFK"] = GetViaturasSelectList(marcacaoNova.ViaturaFK);
             return View(marcacaoNova);
         }
 
+        [Authorize(Roles = "admin,funcionario")]
         // GET: Marcacoes/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
@@ -77,7 +124,7 @@ namespace FluvAuto.Controllers
                 return NotFound();
             }
 
-            var marcacao = await _bd.Marcacoes.FindAsync(id);
+            var marcacao = await _bd.Marcacoes.Include(m => m.Viatura).FirstOrDefaultAsync(m => m.MarcacaoId == id);
             if (marcacao == null)
             {
                 return NotFound();
@@ -88,10 +135,12 @@ namespace FluvAuto.Controllers
             HttpContext.Session.SetInt32("MarcacaoId", marcacao.MarcacaoId);
             HttpContext.Session.SetString("Acao", "Marcacoes/Edit"); // para saber que estamos a editar uma marcação, evitando trafulhices
 
-            ViewData["ViaturaFK"] = new SelectList(_bd.Viaturas, "ViaturaId", "Matricula", marcacao.ViaturaFK);
+            int clienteId = marcacao.Viatura.ClienteFK;
+            ViewData["ViaturaFK"] = GetViaturasSelectList(marcacao.ViaturaFK, clienteId);
             return View(marcacao);
         }
 
+        [Authorize(Roles = "admin,funcionario")]
         // POST: Marcacoes/Edit/5
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
@@ -112,7 +161,10 @@ namespace FluvAuto.Controllers
             if (marcacaoIdSession == null || string.IsNullOrEmpty(acao))
             {
                 ModelState.AddModelError("", "Demorou muito tempo. Já não consegue alterar a marcação. Tem de reiniciar o processo.");
-                ViewData["ViaturaFK"] = new SelectList(_bd.Viaturas, "ViaturaId", "Matricula", marcacaoAlterada.ViaturaFK);
+                // Trazer tb o clienteId da viatura selecionada
+                var viatura = _bd.Viaturas.FirstOrDefault(v => v.ViaturaId == marcacaoAlterada.ViaturaFK);
+                int? clienteId = viatura?.ClienteFK;
+                ViewData["ViaturaFK"] = GetViaturasSelectList(marcacaoAlterada.ViaturaFK, clienteId);
                 return View(marcacaoAlterada);
             }
 
@@ -143,10 +195,14 @@ namespace FluvAuto.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["ViaturaFK"] = new SelectList(_bd.Viaturas, "ViaturaId", "Matricula", marcacaoAlterada.ViaturaFK);
+            // Trazer tb o clienteId da viatura selecionada
+            var viatura2 = _bd.Viaturas.FirstOrDefault(v => v.ViaturaId == marcacaoAlterada.ViaturaFK);
+            int? clienteId2 = viatura2?.ClienteFK;
+            ViewData["ViaturaFK"] = GetViaturasSelectList(marcacaoAlterada.ViaturaFK, clienteId2);
             return View(marcacaoAlterada);
         }
 
+        [Authorize(Roles = "admin,funcionario")]
         // GET: Marcacoes/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
@@ -170,6 +226,7 @@ namespace FluvAuto.Controllers
             return View(marcacao);
         }
 
+        [Authorize(Roles = "admin,funcionario")]
         // POST: Marcacoes/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]

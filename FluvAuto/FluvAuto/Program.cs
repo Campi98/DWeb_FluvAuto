@@ -17,6 +17,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
 builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
+    .AddRoles<IdentityRole>()
     .AddEntityFrameworkStores<ApplicationDbContext>();
 builder.Services.AddControllersWithViews();
 
@@ -29,7 +30,7 @@ builder.Services.AddSession(options => {
 builder.Services.AddDistributedMemoryCache();
 
 
-// Eliminar a proteÁ„o de 'ciclos' qd se faz uma pesquisa que envolva um relacionamento 1-N em Linq
+// Eliminar a prote√ß√£o de 'ciclos' qd se faz uma pesquisa que envolva um relacionamento 1-N em Linq
 // https://code-maze.com/aspnetcore-handling-circular-references-when-working-with-json/
 // https://marcionizzola.medium.com/como-resolver-jsonexception-a-possible-object-cycle-was-detected-27e830ea78e5
 builder.Services.AddControllers()
@@ -65,19 +66,19 @@ builder.Services.AddAuthentication(options => { })
    });
 
 
-// configuraÁ„o do JWT
+// configura√ß√£o do JWT
 builder.Services.AddScoped<TokenService>();
 
 // Adiciona o Swagger
-// builder.Services.AddEndpointsApiExplorer();   // necess·ria apenas para APIs mÌnimas. 
+// builder.Services.AddEndpointsApiExplorer();   // necess√°ria apenas para APIs m√≠nimas. 
 builder.Services.AddSwaggerGen();
 
 builder.Services.AddSwaggerGen(c => {
     c.SwaggerDoc("v1", new OpenApiInfo
     {
-        Title = "Minha API de Gest„o de uma Oficina",
+        Title = "Minha API de Gest√£o de uma Oficina",
         Version = "v1",
-        Description = "API para gest„o de viaturas, marcaÁıes e utilizadores"
+        Description = "API para gest√£o de viaturas, marca√ß√µes e utilizadores"
     });
     // Caminho para o XML gerado
     var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
@@ -93,7 +94,8 @@ using (var scope = app.Services.CreateScope())
     var services = scope.ServiceProvider;
     var context = services.GetRequiredService<ApplicationDbContext>();
     var userManager = services.GetRequiredService<UserManager<IdentityUser>>();
-    DBInitializer.Initialize(context, userManager);
+    var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
+    DBInitializer.Initialize(context, userManager, roleManager);
 }
 
 // Configure the HTTP request pipeline.

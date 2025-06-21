@@ -52,11 +52,10 @@ namespace FluvAuto.Models
         /// <summary>
         /// Estado da marcação (ex: Agendada, Em Progresso, Concluída, Cancelada)
         /// </summary>
-        [Required(ErrorMessage = "O {0} é de preenchimento obrigatório.")]
         [Display(Name = "Estado")]
         [RegularExpression("^(Agendada|Em Progresso|Concluída|Cancelada)$",
             ErrorMessage = "O estado deve ser: Agendada, Em Progresso, Concluída ou Cancelada")]
-        public string Estado { get; set; } = "";
+        public string Estado { get; set; } = "Agendada";
 
         /// <summary>
         /// FK para referenciar a viatura da marcação
@@ -64,7 +63,7 @@ namespace FluvAuto.Models
         [ForeignKey(nameof(Viatura))]
         [Display(Name = "Viatura")]
         public int ViaturaFK { get; set; }
-        public Viatura Viatura { get; set; }
+        public Viatura? Viatura { get; set; }
 
         /// <summary>
         /// Lista dos detalhes de serviços associados à marcação
