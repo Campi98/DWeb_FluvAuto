@@ -11,7 +11,6 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace FluvAuto.Controllers
 {
-    [Authorize]
     public class FuncionariosMarcacoesController : Controller
     {
         private readonly ApplicationDbContext _bd;
@@ -22,13 +21,27 @@ namespace FluvAuto.Controllers
         }
 
         // GET: FuncionariosMarcacoes
+        [Authorize]
         public async Task<IActionResult> Index()
         {
-            var applicationDbContext = _bd.FuncionariosMarcacoes.Include(f => f.Funcionario).Include(f => f.Marcacao);
-            return View(await applicationDbContext.ToListAsync());
+            if (User.IsInRole("admin") || User.IsInRole("funcionario"))
+            {
+                var applicationDbContext = _bd.FuncionariosMarcacoes.Include(f => f.Funcionario).Include(f => f.Marcacao).ThenInclude(m => m.Viatura);
+                return View(await applicationDbContext.ToListAsync());
+            }
+            // Cliente: só vê marcações das suas viaturas
+            var username = User.Identity?.Name;
+            var clienteId = _bd.Clientes.Where(c => c.UserName == username).Select(c => c.UtilizadorId).FirstOrDefault();
+            var viaturasIds = _bd.Viaturas.Where(v => v.ClienteFK == clienteId).Select(v => v.ViaturaId).ToList();
+            var marcacoesCliente = _bd.FuncionariosMarcacoes
+                .Include(f => f.Funcionario)
+                .Include(f => f.Marcacao).ThenInclude(m => m.Viatura)
+                .Where(fm => viaturasIds.Contains(fm.Marcacao.ViaturaFK));
+            return View(await marcacoesCliente.ToListAsync());
         }
 
         // GET: FuncionariosMarcacoes/Details?marcacaoId=1&funcionarioId=2
+        [Authorize]
         public async Task<IActionResult> Details(int? marcacaoId, int? funcionarioId)
         {
             if (marcacaoId == null || funcionarioId == null)
@@ -38,21 +51,31 @@ namespace FluvAuto.Controllers
 
             var funcionariosMarcacoes = await _bd.FuncionariosMarcacoes
                 .Include(f => f.Funcionario)
-                .Include(f => f.Marcacao)
+                .Include(f => f.Marcacao).ThenInclude(m => m.Viatura)
                 .FirstOrDefaultAsync(m => m.MarcacaoFK == marcacaoId && m.FuncionarioFK == funcionarioId);
 
             if (funcionariosMarcacoes == null)
             {
                 return NotFound();
             }
-
+            // Cliente: só pode ver se a viatura é sua
+            if (!(User.IsInRole("admin") || User.IsInRole("funcionario")))
+            {
+                var username = User.Identity?.Name;
+                var clienteId = _bd.Clientes.Where(c => c.UserName == username).Select(c => c.UtilizadorId).FirstOrDefault();
+                if (funcionariosMarcacoes.Marcacao?.Viatura?.ClienteFK != clienteId)
+                {
+                    return Forbid();
+                }
+            }
             return View(funcionariosMarcacoes);
         }
 
         // GET: FuncionariosMarcacoes/Create
+        [Authorize(Roles = "admin,funcionario")]
         public IActionResult Create()
         {
-            ViewData["FuncionarioFK"] = new SelectList(_bd.Funcionarios, "UtilizadorId", "Email");
+            ViewData["FuncionarioFK"] = new SelectList(_bd.Funcionarios, "UtilizadorId", "Nome");
             ViewData["MarcacaoFK"] = new SelectList(_bd.Marcacoes, "MarcacaoId", "Servico");
             return View();
         }
@@ -60,6 +83,7 @@ namespace FluvAuto.Controllers
         // POST: FuncionariosMarcacoes/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        [Authorize(Roles = "admin,funcionario")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("HorasGastas,Comentarios,DataInicioServico,MarcacaoFK,FuncionarioFK")] FuncionariosMarcacoes funcionarioMarcacaoNova)
@@ -70,12 +94,13 @@ namespace FluvAuto.Controllers
                 await _bd.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["FuncionarioFK"] = new SelectList(_bd.Funcionarios, "UtilizadorId", "Email", funcionarioMarcacaoNova.FuncionarioFK);
+            ViewData["FuncionarioFK"] = new SelectList(_bd.Funcionarios, "UtilizadorId", "Nome", funcionarioMarcacaoNova.FuncionarioFK);
             ViewData["MarcacaoFK"] = new SelectList(_bd.Marcacoes, "MarcacaoId", "Servico", funcionarioMarcacaoNova.MarcacaoFK);
             return View(funcionarioMarcacaoNova);
         }
 
         // GET: FuncionariosMarcacoes/Edit?marcacaoId=1&funcionarioId=2
+        [Authorize(Roles = "admin,funcionario")]
         public async Task<IActionResult> Edit(int? marcacaoId, int? funcionarioId)
         {
             if (marcacaoId == null || funcionarioId == null)
@@ -90,7 +115,7 @@ namespace FluvAuto.Controllers
             {
                 return NotFound();
             }
-            ViewData["FuncionarioFK"] = new SelectList(_bd.Funcionarios, "UtilizadorId", "Email", funcionariosMarcacoes.FuncionarioFK);
+            ViewData["FuncionarioFK"] = new SelectList(_bd.Funcionarios, "UtilizadorId", "Nome", funcionariosMarcacoes.FuncionarioFK);
             ViewData["MarcacaoFK"] = new SelectList(_bd.Marcacoes, "MarcacaoId", "Servico", funcionariosMarcacoes.MarcacaoFK);
             return View(funcionariosMarcacoes);
         }
@@ -98,6 +123,7 @@ namespace FluvAuto.Controllers
         // POST: FuncionariosMarcacoes/Edit/5
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        [Authorize(Roles = "admin,funcionario")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int marcacaoId, int funcionarioId, [Bind("HorasGastas,Comentarios,DataInicioServico,MarcacaoFK,FuncionarioFK")] FuncionariosMarcacoes funcionarioMarcacaoAlterada)
@@ -127,12 +153,13 @@ namespace FluvAuto.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["FuncionarioFK"] = new SelectList(_bd.Funcionarios, "UtilizadorId", "Email", funcionarioMarcacaoAlterada.FuncionarioFK);
+            ViewData["FuncionarioFK"] = new SelectList(_bd.Funcionarios, "UtilizadorId", "Nome", funcionarioMarcacaoAlterada.FuncionarioFK);
             ViewData["MarcacaoFK"] = new SelectList(_bd.Marcacoes, "MarcacaoId", "Servico", funcionarioMarcacaoAlterada.MarcacaoFK);
             return View(funcionarioMarcacaoAlterada);
         }
 
         // GET: FuncionariosMarcacoes/Delete/5
+        [Authorize(Roles = "admin,funcionario")]
         public async Task<IActionResult> Delete(int? marcacaoId, int? funcionarioId)
         {
             if (marcacaoId == null || funcionarioId == null)
@@ -154,6 +181,7 @@ namespace FluvAuto.Controllers
         }
 
         // POST: FuncionariosMarcacoes/Delete/5
+        [Authorize(Roles = "admin,funcionario")]
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int marcacaoId, int funcionarioId)
