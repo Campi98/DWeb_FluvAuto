@@ -1,9 +1,69 @@
 ﻿@{
     ViewData["Title"] = "Página de Utilizador";
+    var datasMarcacoes = (List<string>)ViewBag.DatasMarcacoes ?? new List<string>();
 }
+<link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.css" rel="stylesheet" />
+<style>
+    /* Remove o azul do dia selecionado */
+    .fc-daygrid-day.fc-day-today {
+        background: #b3d4fc !important;
+        /* mantém o highlight amarelo/azul claro para hoje */
+    }
+
+    .fc-daygrid-day.fc-day-selected,
+    .fc-daygrid-day.fc-daygrid-day-selected {
+        background: transparent !important;
+    }
+
+    .fc-daygrid-day.user-marcacao {
+        background: #ffe599 !important;
+    }
+</style>
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js"></script>
 <div class="text-center text-black">
     <h1>@ViewData["Title"]</h1>
 
-    <h2>Licenciatura em Engenharia Informática</h2>
 
+    <div id="calendar" style="max-width: 600px; margin: 30px auto;"></div>
 </div>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        var calendarEl = document.getElementById('calendar');
+        var today = new Date();
+        var yyyy = today.getFullYear();
+        var mm = String(today.getMonth() + 1).padStart(2, '0');
+        var dd = String(today.getDate()).padStart(2, '0');
+        var todayStr = yyyy + '-' + mm + '-' + dd;
+        var marcacoes = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(datasMarcacoes));
+        var calendar = new FullCalendar.Calendar(calendarEl, {
+            initialView: 'dayGridMonth',
+            locale: 'pt',
+            initialDate: todayStr,
+            headerToolbar: {
+                left: 'prev',
+                center: 'title',
+                right: 'next'
+            },
+            selectable: false,
+            editable: false,
+            showNonCurrentDates: true,
+            dayMaxEventRows: true,
+            height: 'auto',
+            fixedWeekCount: false,
+            dayCellDidMount: function (info) {
+                // Obter a data do dia no formato yyyy-MM-dd sem timezone
+                var cellDate = info.date.getFullYear() + '-' + String(info.date.getMonth() + 1).padStart(2, '0') + '-' + String(info.date.getDate()).padStart(2, '0');
+                // Highlight no current day
+                if (cellDate === todayStr) {
+                    info.el.style.backgroundColor = '#b3d4fc';
+                }
+                // Highlight marcações do user
+                if (marcacoes.includes(cellDate)) {
+                    info.el.classList.add('user-marcacao');
+                }
+            }
+        });
+        calendar.render();
+    });
+</script>
+
