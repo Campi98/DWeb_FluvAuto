@@ -4,10 +4,10 @@
     ViewData["Title"] = "Index";
 }
 
-<h1>Index</h1>
+<h1>Marcações</h1>
 
 <p>
-    <a asp-action="Create">Create New</a>
+    <a asp-action="Create">Nova marcação</a>
 </p>
 <table class="table">
     <thead>
@@ -37,35 +37,49 @@
         </tr>
     </thead>
     <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.DataMarcacaoFeita)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.DataPrevistaInicioServico)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.DataFimServico)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Servico)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Observacoes)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Estado)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Viatura.Combustivel)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.MarcacaoId">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.MarcacaoId">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.MarcacaoId">Delete</a>
-            </td>
-        </tr>
-}
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @item.DataMarcacaoFeita.ToString("dd/MM/yyyy")<br />
+                    <span>@item.DataMarcacaoFeita.ToString("HH:mm")</span>
+                </td>
+                <td>
+                    @Html.Raw(item.DataPrevistaInicioServico == DateTime.MinValue ? "-" : item.DataPrevistaInicioServico.ToString("dd/MM/yyyy") + "<br />" + item.DataPrevistaInicioServico.ToString("HH:mm"))
+                </td>
+                <td>
+                    @Html.Raw(item.DataFimServico == null ? "-" : item.DataFimServico.Value.ToString("dd/MM/yyyy") + "<br />" + item.DataFimServico.Value.ToString("HH:mm"))
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Servico)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Observacoes)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Estado)
+                </td>
+                <td>
+                    <span>@item.Viatura.Marca @item.Viatura.Modelo</span><br />
+                    <small>@item.Viatura.Matricula</small>
+                </td>
+                @if (isAdminOrFuncionario)
+                {
+                    <td>
+                        @Html.Raw((item.Viatura?.Cliente?.Nome ?? "-") + "<br />" + (item.Viatura?.Cliente?.Telefone ?? "-"))
+                    </td>
+                }
+                <td>
+                    @if (isAdminOrFuncionario)
+                    {
+                        @Html.ActionLink("Editar", "Edit", new { id = item.MarcacaoId })
+                        @: |
+                        @Html.ActionLink("Apagar", "Delete", new { id = item.MarcacaoId })
+                        @: |
+                    }
+                    @Html.ActionLink("Detalhes", "Details", new { id = item.MarcacaoId })
+                </td>
+            </tr>
+        }
     </tbody>
 </table>

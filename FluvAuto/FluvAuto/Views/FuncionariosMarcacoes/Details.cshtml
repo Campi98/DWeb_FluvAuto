@@ -4,10 +4,9 @@
     ViewData["Title"] = "Details";
 }
 
-<h1>Details</h1>
+<h1>Detalhes do serviço</h1>
 
 <div>
-    <h4>FuncionariosMarcacoes</h4>
     <hr />
     <dl class="row">
         <dt class = "col-sm-2">
@@ -43,6 +42,10 @@
     </dl>
 </div>
 <div>
-    @Html.ActionLink("Edit", "Edit", new { marcacaoId = Model.MarcacaoFK, funcionarioId = Model.FuncionarioFK }) |
-    <a asp-action="Index">Back to List</a>
+    @if (isAdminOrFuncionario)
+    {
+        @Html.ActionLink("Editar", "Edit", new { marcacaoId = Model.MarcacaoFK, funcionarioId = Model.FuncionarioFK })
+        @: |
+    }
+    <a asp-action="Index">Voltar à lista</a>
 </div>

@@ -4,11 +4,9 @@
     ViewData["Title"] = "Delete";
 }
 
-<h1>Delete</h1>
+<h1>Apagar serviço</h1>
 
-<h3>Are you sure you want to delete this?</h3>
 <div>
-    <h4>FuncionariosMarcacoes</h4>
     <hr />
     <dl class="row">
         <dt class = "col-sm-2">
@@ -46,7 +44,7 @@
     <form asp-action="Delete" asp-route-marcacaoId="@Model.MarcacaoFK" asp-route-funcionarioId="@Model.FuncionarioFK">
         <input type="hidden" asp-for="MarcacaoFK" />
         <input type="hidden" asp-for="FuncionarioFK" />
-        <input type="submit" value="Delete" class="btn btn-danger" /> |
-        <a asp-action="Index">Back to List</a>
+        <input type="submit" value="Apagar" class="btn btn-danger" /> |
+        <a asp-action="Index">Voltar à lista</a>
     </form>
 </div>

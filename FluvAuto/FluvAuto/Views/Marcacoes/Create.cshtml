@@ -4,9 +4,8 @@
     ViewData["Title"] = "Create";
 }
 
-<h1>Create</h1>
+<h1>Nova marcação</h1>
 
-<h4>Marcacao</h4>
 <hr />
 <div class="row">
     <div class="col-md-4">
@@ -47,14 +46,14 @@
                 <select asp-for="ViaturaFK" class ="form-control" asp-items="ViewBag.ViaturaFK"></select>
             </div>
             <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-primary" />
+                <input type="submit" value="Marcar" class="btn btn-primary" />
             </div>
         </form>
     </div>
 </div>
 
 <div>
-    <a asp-action="Index">Back to List</a>
+    <a asp-action="Index">Voltar à lista</a>
 </div>
 
 @section Scripts {
