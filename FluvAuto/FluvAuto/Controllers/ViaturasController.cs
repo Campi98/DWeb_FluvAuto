@@ -24,8 +24,16 @@ namespace FluvAuto.Controllers
         // GET: Viaturas
         public async Task<IActionResult> Index()
         {
-            var applicationDbContext = _bd.Viaturas.Include(v => v.Cliente);
-            return View(await applicationDbContext.ToListAsync());
+            if (User.IsInRole("admin") || User.IsInRole("funcionario"))
+            {
+                var todasViaturas = _bd.Viaturas.Include(v => v.Cliente);
+                return View(await todasViaturas.ToListAsync());
+            }
+            // Cliente: só vê as suas viaturas
+            var username = User.Identity?.Name;
+            var clienteId = _bd.Clientes.Where(c => c.UserName == username).Select(c => c.UtilizadorId).FirstOrDefault();
+            var viaturasCliente = _bd.Viaturas.Include(v => v.Cliente).Where(v => v.ClienteFK == clienteId);
+            return View(await viaturasCliente.ToListAsync());
         }
 
         // GET: Viaturas/Details/5
