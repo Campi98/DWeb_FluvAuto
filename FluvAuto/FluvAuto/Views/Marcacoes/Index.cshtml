@@ -1,7 +1,8 @@
 ﻿@model IEnumerable<FluvAuto.Models.Marcacao>
-
+@using Microsoft.AspNetCore.Identity
 @{
     ViewData["Title"] = "Index";
+    var isAdminOrFuncionario = User.IsInRole("admin") || User.IsInRole("funcionario");
 }
 
 <h1>Marcações</h1>
@@ -33,6 +34,10 @@
             <th>
                 @Html.DisplayNameFor(model => model.Viatura)
             </th>
+            @if (isAdminOrFuncionario)
+            {
+                <th>Cliente</th>
+            }
             <th></th>
         </tr>
     </thead>
