@@ -36,13 +36,22 @@ public class HomeController : Controller
     {
         var username = User.Identity?.Name;
         var clienteId = _context.Clientes.Where(c => c.UserName == username).Select(c => c.UtilizadorId).FirstOrDefault();
-        var datasMarcacoes = _context.Marcacoes
+        var marcacoes = _context.Marcacoes
             .Where(m => m.Viatura != null && m.Viatura.ClienteFK == clienteId)
             .Include(m => m.Viatura)
-            .Select(m => m.DataMarcacaoFeita.Date)
+            .Select(m => new
+            {
+                Data = m.DataMarcacaoFeita,
+                Hora = m.DataMarcacaoFeita.ToString("HH:mm"),
+                Id = m.MarcacaoId
+            })
             .ToList();
-        var datasMarcacoesStr = datasMarcacoes.Select(d => d.ToString("yyyy-MM-dd")).ToList();
+        var datasMarcacoesStr = marcacoes.Select(m => m.Data.ToString("yyyy-MM-dd")).ToList();
+        var horasMarcacoesStr = marcacoes.Select(m => m.Hora).ToList();
+        var idsMarcacoes = marcacoes.Select(m => m.Id).ToList();
         ViewBag.DatasMarcacoes = datasMarcacoesStr;
+        ViewBag.HorasMarcacoes = horasMarcacoesStr;
+        ViewBag.IdsMarcacoes = idsMarcacoes;
         return View();
     }
 
