@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using FluvAuto.Models;
 using FluvAuto.Data;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authorization;
 
 namespace FluvAuto.Controllers;
 
@@ -32,6 +33,7 @@ public class HomeController : Controller
         return View("Privacy");
     }
 
+    [Authorize]
     public IActionResult UserPage()
     {
         var username = User.Identity?.Name;
