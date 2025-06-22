@@ -22,11 +22,28 @@ namespace FluvAuto.Controllers
         }
 
         // GET: Viaturas
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string searchString, string searchField)
         {
             if (User.IsInRole("admin") || User.IsInRole("funcionario"))
             {
                 var todasViaturas = _bd.Viaturas.Include(v => v.Cliente);
+                if (!string.IsNullOrEmpty(searchString))
+                {
+                    IQueryable<Viatura> filtradas = todasViaturas;
+                    switch (searchField)
+                    {
+                        case "matricula":
+                            filtradas = filtradas.Where(v => v.Matricula != null && v.Matricula.Contains(searchString));
+                            break;
+                        case "telefone":
+                            filtradas = filtradas.Where(v => v.Cliente != null && v.Cliente.Telefone != null && v.Cliente.Telefone.Contains(searchString));
+                            break;
+                        default:
+                            filtradas = filtradas.Where(v => v.Cliente != null && v.Cliente.Nome.Contains(searchString));
+                            break;
+                    }
+                    return View(await filtradas.ToListAsync());
+                }
                 return View(await todasViaturas.ToListAsync());
             }
             // Cliente: só vê as suas viaturas
