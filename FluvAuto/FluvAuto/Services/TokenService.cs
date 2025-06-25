@@ -11,24 +11,36 @@ namespace FluvAuto.Services
     {
 
         private readonly IConfiguration _config;
+        private readonly UserManager<IdentityUser> _userManager;
 
-        public TokenService(IConfiguration config)
+        public TokenService(IConfiguration config, UserManager<IdentityUser> userManager)
         {
             _config = config;
+            _userManager = userManager;
         }
 
-        public string GenerateToken(IdentityUser user)
+        public async Task<string> GenerateTokenAsync(IdentityUser user)
         {
             var jwtSettings = _config.GetSection("Jwt");
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings["Key"]));
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings["Key"] ?? throw new InvalidOperationException("JWT Key not configured")));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
-            var claims = new[]
+            // Obter as roles do utilizador
+            var roles = await _userManager.GetRolesAsync(user);
+
+            var claims = new List<Claim>
             {
-           new Claim(JwtRegisteredClaimNames.Sub, user.Id),   // User ID
-           new Claim(JwtRegisteredClaimNames.Email, user.Email),  // User Email - não será nulo pq é usado como UserName
-           new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
-       };
+                new Claim(JwtRegisteredClaimNames.Sub, user.Id),   // User ID
+                new Claim(JwtRegisteredClaimNames.Email, user.Email ?? ""),  // User Email
+                new Claim(ClaimTypes.Name, user.UserName ?? ""),        // User Name
+                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
+            };
+
+            // Adicionar as roles como claims
+            foreach (var role in roles)
+            {
+                claims.Add(new Claim(ClaimTypes.Role, role));
+            }
 
             var token = new JwtSecurityToken(
                 issuer: jwtSettings["Issuer"],
@@ -39,6 +51,13 @@ namespace FluvAuto.Services
             );
 
             return new JwtSecurityTokenHandler().WriteToken(token);
+        }
+
+        // é preciso manter método sincrono??
+        [Obsolete("Use GenerateTokenAsync instead")]
+        public string GenerateToken(IdentityUser user)
+        {
+            return GenerateTokenAsync(user).Result;
         }
     }
 }

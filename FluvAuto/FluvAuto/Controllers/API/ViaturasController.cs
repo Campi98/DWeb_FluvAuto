@@ -7,13 +7,14 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using FluvAuto.Data;
 using FluvAuto.Models;
+using FluvAuto.Models.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 
 namespace FluvAuto.Controllers.API
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize] 
+    [Authorize(AuthenticationSchemes = "Bearer")]
     public class ViaturasController : ControllerBase
     {
         private readonly ApplicationDbContext _bd;
@@ -31,16 +32,33 @@ namespace FluvAuto.Controllers.API
         /// </summary>
         /// <returns></returns>
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Viatura>>> GetViaturas()
+        public async Task<ActionResult<IEnumerable<ViaturaDTO>>> GetViaturas()
         {
             var isAdminOrFuncionario = User.IsInRole("admin") || User.IsInRole("funcionario");
 
             if (isAdminOrFuncionario)
             {
-                return await _bd.Viaturas
+                var todasViaturas = await _bd.Viaturas
                     .Include(v => v.Cliente)
-                    .Include(v => v.Marcacoes)
+                    .Select(v => new ViaturaDTO
+                    {
+                        ViaturaId = v.ViaturaId,
+                        Marca = v.Marca,
+                        Modelo = v.Modelo,
+                        Matricula = v.Matricula,
+                        Ano = v.Ano,
+                        Cor = v.Cor,
+                        Combustivel = v.Combustivel,
+                        Motorizacao = v.Motorizacao,
+                        ClienteFK = v.ClienteFK,
+                        ClienteNome = v.Cliente != null ? v.Cliente.Nome : null,
+                        ClienteEmail = v.Cliente != null ? v.Cliente.Email : null,
+                        ClienteTelefone = v.Cliente != null ? v.Cliente.Telefone : null,
+                        NumeroMarcacoes = _bd.Marcacoes.Count(m => m.ViaturaFK == v.ViaturaId)
+                    })
                     .ToListAsync();
+
+                return todasViaturas;
             }
 
             // Cliente: só vê as suas viaturas
@@ -50,11 +68,28 @@ namespace FluvAuto.Controllers.API
                 .Select(c => c.UtilizadorId)
                 .FirstOrDefault();
 
-            return await _bd.Viaturas
+            var viaturasCliente = await _bd.Viaturas
                 .Include(v => v.Cliente)
-                .Include(v => v.Marcacoes)
                 .Where(v => v.ClienteFK == clienteId)
+                .Select(v => new ViaturaDTO
+                {
+                    ViaturaId = v.ViaturaId,
+                    Marca = v.Marca,
+                    Modelo = v.Modelo,
+                    Matricula = v.Matricula,
+                    Ano = v.Ano,
+                    Cor = v.Cor,
+                    Combustivel = v.Combustivel,
+                    Motorizacao = v.Motorizacao,
+                    ClienteFK = v.ClienteFK,
+                    ClienteNome = v.Cliente != null ? v.Cliente.Nome : null,
+                    ClienteEmail = v.Cliente != null ? v.Cliente.Email : null,
+                    ClienteTelefone = v.Cliente != null ? v.Cliente.Telefone : null,
+                    NumeroMarcacoes = _bd.Marcacoes.Count(m => m.ViaturaFK == v.ViaturaId)
+                })
                 .ToListAsync();
+
+            return viaturasCliente;
         }
 
         // GET: api/Viaturas/5
@@ -65,11 +100,10 @@ namespace FluvAuto.Controllers.API
         /// <param name="id"> Identificador da viatura pretendida </param>
         /// <returns></returns>
         [HttpGet("{id}")]
-        public async Task<ActionResult<Viatura>> GetViatura(int id)
+        public async Task<ActionResult<ViaturaDTO>> GetViatura(int id)
         {
             var viatura = await _bd.Viaturas
                 .Include(v => v.Cliente)
-                .Include(v => v.Marcacoes)
                 .FirstOrDefaultAsync(v => v.ViaturaId == id);
 
             if (viatura == null)
@@ -92,7 +126,25 @@ namespace FluvAuto.Controllers.API
                 }
             }
 
-            return viatura;
+            // Converter para DTO evitando referências circulares
+            var viaturaDTO = new ViaturaDTO
+            {
+                ViaturaId = viatura.ViaturaId,
+                Marca = viatura.Marca,
+                Modelo = viatura.Modelo,
+                Matricula = viatura.Matricula,
+                Ano = viatura.Ano,
+                Cor = viatura.Cor,
+                Combustivel = viatura.Combustivel,
+                Motorizacao = viatura.Motorizacao,
+                ClienteFK = viatura.ClienteFK,
+                ClienteNome = viatura.Cliente?.Nome,
+                ClienteEmail = viatura.Cliente?.Email,
+                ClienteTelefone = viatura.Cliente?.Telefone,
+                NumeroMarcacoes = await _bd.Marcacoes.CountAsync(m => m.ViaturaFK == id)
+            };
+
+            return viaturaDTO;
         }
 
         // PUT: api/Viaturas/5
@@ -104,7 +156,7 @@ namespace FluvAuto.Controllers.API
         /// <param name="viaturaAlterada"> Novos dados da viatura </param>
         /// <returns></returns>
         [HttpPut("{id}")]
-        [Authorize(Roles = "admin,funcionario")]
+        [Authorize(AuthenticationSchemes = "Bearer", Roles = "admin,funcionario")]
         public async Task<IActionResult> PutViatura(int id, Viatura viaturaAlterada)
         {
             if (id != viaturaAlterada.ViaturaId)
@@ -170,7 +222,7 @@ namespace FluvAuto.Controllers.API
         /// <param name="id"> Identificador da viatura a apagar </param>
         /// <returns></returns>
         [HttpDelete("{id}")]
-        [Authorize(Roles = "admin,funcionario")]
+        [Authorize(AuthenticationSchemes = "Bearer", Roles = "admin,funcionario")]
         public async Task<IActionResult> DeleteViatura(int id)
         {
             var viatura = await _bd.Viaturas.FindAsync(id);

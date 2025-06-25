@@ -7,13 +7,14 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using FluvAuto.Data;
 using FluvAuto.Models;
+using FluvAuto.Models.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 
 namespace FluvAuto.Controllers.API
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize(Roles = "admin")]
+    [Authorize(AuthenticationSchemes = "Bearer", Roles = "admin")]
     public class ClientesController : ControllerBase
     {
         private readonly ApplicationDbContext _bd;
@@ -21,19 +22,32 @@ namespace FluvAuto.Controllers.API
         public ClientesController(ApplicationDbContext context)
         {
             _bd = context;
-        }        
-        
+        }
+
         // GET: api/Clientes
         /// <summary>
         /// Obtém a lista de todos os clientes
         /// </summary>
         /// <returns></returns>
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Cliente>>> GetClientes()
+        public async Task<ActionResult<IEnumerable<ClienteDTO>>> GetClientes()
         {
-            return await _bd.Clientes
-                .Include(c => c.Viaturas)
+            var clientes = await _bd.Clientes
+                .Select(c => new ClienteDTO
+                {
+                    UtilizadorId = c.UtilizadorId,
+                    UserName = c.UserName,
+                    Nome = c.Nome,
+                    Email = c.Email,
+                    Telefone = c.Telefone,
+                    Morada = c.Morada,
+                    CodPostal = c.CodPostal,
+                    NIF = c.NIF,
+                    NumeroViaturas = c.Viaturas.Count
+                })
                 .ToListAsync();
+
+            return clientes;
         }
 
         // GET: api/Clientes/5
@@ -43,10 +57,9 @@ namespace FluvAuto.Controllers.API
         /// <param name="id">Identificador do cliente</param>
         /// <returns></returns>
         [HttpGet("{id}")]
-        public async Task<ActionResult<Cliente>> GetCliente(int id)
+        public async Task<ActionResult<ClienteDTO>> GetCliente(int id)
         {
             var cliente = await _bd.Clientes
-                .Include(c => c.Viaturas)
                 .FirstOrDefaultAsync(c => c.UtilizadorId == id);
 
             if (cliente == null)
@@ -54,9 +67,22 @@ namespace FluvAuto.Controllers.API
                 return NotFound();
             }
 
-            return cliente;
-        }        
-        
+            var clienteDTO = new ClienteDTO
+            {
+                UtilizadorId = cliente.UtilizadorId,
+                UserName = cliente.UserName,
+                Nome = cliente.Nome,
+                Email = cliente.Email,
+                Telefone = cliente.Telefone,
+                Morada = cliente.Morada,
+                CodPostal = cliente.CodPostal,
+                NIF = cliente.NIF,
+                NumeroViaturas = await _bd.Viaturas.CountAsync(v => v.ClienteFK == id)
+            };
+
+            return clienteDTO;
+        }
+
         // PUT: api/Clientes/5
         /// <summary>
         /// Atualiza um cliente existente 

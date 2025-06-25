@@ -45,13 +45,15 @@ builder.Services.AddControllers()
 // *******************************************************************
 // JWT Settings
 var jwtSettings = builder.Configuration.GetSection("Jwt");
-var key = Encoding.UTF8.GetBytes(jwtSettings["Key"]);
+var key = Encoding.UTF8.GetBytes(jwtSettings["Key"] ?? throw new InvalidOperationException("JWT Key not configured"));
 
-builder.Services.AddAuthentication(options => { })
-   .AddCookie("Cookies", options => {
-       options.LoginPath = "/Identity/Account/Login";
-       options.AccessDeniedPath = "/Identity/Account/AccessDenied";
-   })
+builder.Services.AddAuthentication(options =>
+{
+    // Por defeito, usar Cookies para a aplicação web MVC
+    options.DefaultAuthenticateScheme = IdentityConstants.ApplicationScheme;
+    options.DefaultChallengeScheme = IdentityConstants.ApplicationScheme;
+    options.DefaultSignInScheme = IdentityConstants.ExternalScheme;
+})
    .AddJwtBearer("Bearer", options => {
        options.TokenValidationParameters = new TokenValidationParameters
        {
@@ -69,21 +71,58 @@ builder.Services.AddAuthentication(options => { })
 // configuração do JWT
 builder.Services.AddScoped<TokenService>();
 
-// Adiciona o Swagger
-// builder.Services.AddEndpointsApiExplorer();   // necessária apenas para APIs mínimas. 
-builder.Services.AddSwaggerGen();
-
-builder.Services.AddSwaggerGen(c => {
+// Adiciona o Swagger com autenticação JWT
+builder.Services.AddSwaggerGen(c =>
+{
     c.SwaggerDoc("v1", new OpenApiInfo
     {
-        Title = "Minha API de Gestão de uma Oficina",
+        Title = "FluvAuto API - Gestão de Oficina",
         Version = "v1",
-        Description = "API para gestão de viaturas, marcações e utilizadores"
+        Description = "API para gestão de viaturas, marcações e utilizadores",
+        Contact = new OpenApiContact
+        {
+            Name = "FluvAuto Team",
+            Email = "admin@admin.com"
+        }
     });
-    // Caminho para o XML gerado
+
+    // Configuração de autenticação JWT no Swagger
+    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        Description = "JWT Authorization header utilizando o esquema Bearer. \r\n\r\n " +
+                      "Escrever 'Bearer' [espaço] e depois o seu token no campo abaixo.\r\n\r\n" +
+                      "Exemplo: \"Bearer 12345abcdef\"",
+        Name = "Authorization",
+        In = ParameterLocation.Header,
+        Type = SecuritySchemeType.ApiKey,
+        Scheme = "Bearer"
+    });
+
+    c.AddSecurityRequirement(new OpenApiSecurityRequirement()
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
+                {
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                },
+                Scheme = "oauth2",
+                Name = "Bearer",
+                In = ParameterLocation.Header,
+            },
+            new List<string>()
+        }
+    });
+
+    // Caminho para o XML gerado (documentação dos métodos)
     var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
     var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
-    c.IncludeXmlComments(xmlPath);
+    if (File.Exists(xmlPath))
+    {
+        c.IncludeXmlComments(xmlPath);
+    }
 });
 
 var app = builder.Build();
@@ -105,7 +144,14 @@ if (app.Environment.IsDevelopment())
 
     // iniciar o 'middleware' do Swagger
     app.UseSwagger();
-    app.UseSwaggerUI();
+    app.UseSwaggerUI(c =>
+    {
+        c.SwaggerEndpoint("/swagger/v1/swagger.json", "FluvAuto API v1");
+        c.DocumentTitle = "FluvAuto API - Documentação";
+        c.DefaultModelsExpandDepth(-1); // Oculta os schemas por defeito
+        c.DisplayRequestDuration(); // Mostra tempo de resposta
+        c.EnableTryItOutByDefault(); // Ativa "Try it out" por defeito
+    });
 }
 else
 {
