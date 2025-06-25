@@ -55,24 +55,39 @@ namespace FluvAuto.Controllers.API
 
             // houve sucesso na autenticação
             // vou gerar o 'token', associado ao utilizador
-            var token = GenerateJwtToken(login.Username);
+            var token = await GenerateJwtToken(login.Username);
 
             // devolvo o 'token'
             return Ok(new { token });
         }
 
         /// <summary>
-        /// gerar o Token
+        /// gerar o Token com roles do utilizador
         /// </summary>
         /// <param name="username">nome da pessoa associada ao token</param>
         /// <returns></returns>
-        private string GenerateJwtToken(string username)
+        private async Task<string> GenerateJwtToken(string username)
         {
-            var claims = new[] {
-         new Claim(ClaimTypes.Name, username)
-     };
+            var user = await _userManager.FindByEmailAsync(username);
+            if (user == null) throw new ArgumentException("User not found");
 
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(s: _config["Jwt:Key"]));
+            var roles = await _userManager.GetRolesAsync(user);
+
+            var claims = new List<Claim>
+            {
+                new Claim(ClaimTypes.Name, username)
+            };
+
+            // Adicionar roles ao token
+            foreach (var role in roles)
+            {
+                claims.Add(new Claim(ClaimTypes.Role, role));
+            }
+
+            var jwtKey = _config["Jwt:Key"];
+            if (string.IsNullOrEmpty(jwtKey)) throw new ArgumentException("JWT Key not configured");
+
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
             var token = new JwtSecurityToken(
