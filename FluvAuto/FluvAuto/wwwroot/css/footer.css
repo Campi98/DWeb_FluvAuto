@@ -1,0 +1,19 @@
+/* Estilos para o footer personalizado Oficinas Flúvio */
+.footer-oficinas {
+  background-color: #e0e0e0;
+  color: #444;
+  text-align: center;
+  padding: 32px 0 16px 0;
+  font-family: 'Segoe UI', Arial, sans-serif;
+  border-top: 1px solid #bdbdbd;
+}
+.footer-oficinas .footer-title {
+  font-size: 2.2rem;
+  font-weight: 600;
+  margin-bottom: 0.2em;
+}
+.footer-oficinas .footer-subtitle {
+  font-size: 1.1rem;
+  font-weight: 400;
+  color: #666;
+}

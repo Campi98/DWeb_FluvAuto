@@ -7,9 +7,11 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using FluvAuto.Data;
 using FluvAuto.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace FluvAuto.Controllers
 {
+    [Authorize(Roles = "admin")]
     public class FuncionariosController : Controller
     {
         private readonly ApplicationDbContext _bd;

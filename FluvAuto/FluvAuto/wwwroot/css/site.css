@@ -19,4 +19,22 @@ html {
 
 body {
   margin-bottom: 60px;
+  /*background-color: #6d6d6d; /* Fundo cinzento global */
+}
+
+.footer-bg {
+  background: #e0e0e0;
+}
+
+.footer-title {
+  font-size: 2.2rem;
+  font-weight: 600;
+  color: #444;
+  margin-bottom: 0;
+  line-height: 1.1;
+}
+.footer-subtitle {
+  font-size: 1.1rem;
+  color: #666;
+  margin-bottom: 0;
 }

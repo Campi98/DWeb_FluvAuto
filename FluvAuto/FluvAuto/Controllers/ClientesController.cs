@@ -11,7 +11,7 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace FluvAuto.Controllers
 {
-    [Authorize]
+    [Authorize(Roles ="admin")]
     public class ClientesController : Controller
     {
         private readonly ApplicationDbContext _bd;

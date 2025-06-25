@@ -22,10 +22,35 @@ namespace FluvAuto.Controllers
         }
 
         // GET: Viaturas
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string searchString, string searchField)
         {
-            var applicationDbContext = _bd.Viaturas.Include(v => v.Cliente);
-            return View(await applicationDbContext.ToListAsync());
+            if (User.IsInRole("admin") || User.IsInRole("funcionario"))
+            {
+                var todasViaturas = _bd.Viaturas.Include(v => v.Cliente);
+                if (!string.IsNullOrEmpty(searchString))
+                {
+                    IQueryable<Viatura> filtradas = todasViaturas;
+                    switch (searchField)
+                    {
+                        case "matricula":
+                            filtradas = filtradas.Where(v => v.Matricula != null && v.Matricula.Contains(searchString));
+                            break;
+                        case "telefone":
+                            filtradas = filtradas.Where(v => v.Cliente != null && v.Cliente.Telefone != null && v.Cliente.Telefone.Contains(searchString));
+                            break;
+                        default:
+                            filtradas = filtradas.Where(v => v.Cliente != null && v.Cliente.Nome.Contains(searchString));
+                            break;
+                    }
+                    return View(await filtradas.ToListAsync());
+                }
+                return View(await todasViaturas.ToListAsync());
+            }
+            // Cliente: só vê as suas viaturas
+            var username = User.Identity?.Name;
+            var clienteId = _bd.Clientes.Where(c => c.UserName == username).Select(c => c.UtilizadorId).FirstOrDefault();
+            var viaturasCliente = _bd.Viaturas.Include(v => v.Cliente).Where(v => v.ClienteFK == clienteId);
+            return View(await viaturasCliente.ToListAsync());
         }
 
         // GET: Viaturas/Details/5
