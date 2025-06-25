@@ -119,6 +119,7 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.UseSession();   // isto faz os cookies "correr"/funcionar
