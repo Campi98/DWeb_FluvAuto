@@ -22,17 +22,49 @@ namespace FluvAuto.Controllers
 
         // GET: FuncionariosMarcacoes
         [Authorize]
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string searchString, string searchField)
         {
             if (User.IsInRole("admin") || User.IsInRole("funcionario"))
             {
-                var applicationDbContext = _bd.FuncionariosMarcacoes
+                var servicosQuery = _bd.FuncionariosMarcacoes
                     .Include(f => f.Funcionario)
                     .Include(f => f.Marcacao)
                         .ThenInclude(m => m.Viatura)
-                            .ThenInclude(v => v.Cliente);
-                return View(await applicationDbContext.ToListAsync());
+                            .ThenInclude(v => v!.Cliente);
+                
+                if (!string.IsNullOrEmpty(searchString))
+                {
+                    IQueryable<FuncionariosMarcacoes> filtrados = servicosQuery;
+                    switch (searchField)
+                    {
+                        case "nome_funcionario":
+                            filtrados = filtrados.Where(fm => fm.Funcionario != null && fm.Funcionario.Nome != null && 
+                                fm.Funcionario.Nome.ToLower().Contains(searchString.ToLower()));
+                            break;
+                        case "matricula":
+                            filtrados = filtrados.Where(fm => fm.Marcacao != null && fm.Marcacao.Viatura != null && 
+                                fm.Marcacao.Viatura.Matricula != null && fm.Marcacao.Viatura.Matricula.ToLower().Contains(searchString.ToLower()));
+                            break;
+                        case "telefone":
+                            filtrados = filtrados.Where(fm => fm.Marcacao != null && fm.Marcacao.Viatura != null && 
+                                fm.Marcacao.Viatura.Cliente != null && fm.Marcacao.Viatura.Cliente.Telefone != null && 
+                                fm.Marcacao.Viatura.Cliente.Telefone.Contains(searchString));
+                            break;
+                        case "servico":
+                            filtrados = filtrados.Where(fm => fm.Marcacao != null && fm.Marcacao.Servico != null && 
+                                fm.Marcacao.Servico.ToLower().Contains(searchString.ToLower()));
+                            break;
+                        default:
+                            filtrados = filtrados.Where(fm => fm.Marcacao != null && fm.Marcacao.Viatura != null && 
+                                fm.Marcacao.Viatura.Cliente != null && fm.Marcacao.Viatura.Cliente.Nome.ToLower().Contains(searchString.ToLower()));
+                            break;
+                    }
+                    return View(await filtrados.ToListAsync());
+                }
+                
+                return View(await servicosQuery.ToListAsync());
             }
+            
             // Cliente: só vê marcações das suas viaturas
             var username = User.Identity?.Name;
             var clienteId = _bd.Clientes.Where(c => c.UserName == username).Select(c => c.UtilizadorId).FirstOrDefault();
@@ -41,8 +73,8 @@ namespace FluvAuto.Controllers
                 .Include(f => f.Funcionario)
                 .Include(f => f.Marcacao)
                     .ThenInclude(m => m.Viatura)
-                        .ThenInclude(v => v.Cliente)
-                .Where(fm => viaturasIds.Contains(fm.Marcacao.ViaturaFK));
+                        .ThenInclude(v => v!.Cliente)
+                .Where(fm => fm.Marcacao != null && viaturasIds.Contains(fm.Marcacao.ViaturaFK));
             return View(await marcacoesCliente.ToListAsync());
         }
 

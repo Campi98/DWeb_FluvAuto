@@ -3,12 +3,27 @@
 @{
     ViewData["Title"] = "Index";
     var isAdminOrFuncionario = User.IsInRole("admin") || User.IsInRole("funcionario");
+    string? searchString = Context.Request.Query["searchString"].ToString();
+    string? searchField = Context.Request.Query["searchField"].ToString();
 }
 
 <h1>Serviços</h1>
 
 @if (isAdminOrFuncionario)
 {
+    <form method="get" class="mb-3">
+        <div class="input-group">
+            <select name="searchField" class="form-select" style="max-width: 180px;">
+                <option value="nome" selected="@(searchField == null || searchField == "nome" ? "selected" : null)">Nome do Cliente</option>
+                <option value="nome_funcionario" selected="@(searchField == "nome_funcionario" ? "selected" : null)">Nome do Funcionário</option>
+                <option value="matricula" selected="@(searchField == "matricula" ? "selected" : null)">Matrícula</option>
+                <option value="telefone" selected="@(searchField == "telefone" ? "selected" : null)">Telefone</option>
+                <option value="servico" selected="@(searchField == "servico" ? "selected" : null)">Serviço</option>
+            </select>
+            <input type="text" name="searchString" value="@searchString" class="form-control" placeholder="Pesquisar..." />
+            <button type="submit" class="btn btn-primary">Pesquisar</button>
+        </div>
+    </form>
     <p>
         <a asp-action="Create">Criar serviço</a>
     </p>
@@ -55,10 +70,10 @@
                     @Html.DisplayFor(modelItem => item.DataInicioServico)
                 </td>
                 <td>
-                    @Html.DisplayFor(modelItem => item.Marcacao.Servico)
+                    @(item.Marcacao?.Servico ?? "-")
                 </td>
                 <td>
-                    @Html.DisplayFor(modelItem => item.Funcionario.Nome)
+                    @(item.Funcionario?.Nome ?? "-")
                 </td>
                 <td>
                     @(item.Marcacao?.Viatura != null ? ($"{item.Marcacao.Viatura.Marca} - {item.Marcacao.Viatura.Modelo}") : "-")<br />

@@ -22,22 +22,48 @@ namespace FluvAuto.Controllers
         }
 
         // GET: Marcacoes
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string searchString, string searchField)
         {
             var isAdminOrFuncionario = User.IsInRole("admin") || User.IsInRole("funcionario");
             if (isAdminOrFuncionario)
             {
-                var applicationDbContext = _bd.Marcacoes
+                var marcacoesQuery = _bd.Marcacoes
                     .Include(m => m.Viatura)
                     .ThenInclude(v => v.Cliente);
-                return View(await applicationDbContext.ToListAsync());
+
+                if (!string.IsNullOrEmpty(searchString))
+                {
+                    IQueryable<Marcacao> filtradas = marcacoesQuery;
+                    switch (searchField)
+                    {
+                        case "matricula":
+                            filtradas = filtradas.Where(m => m.Viatura != null && m.Viatura.Matricula != null && 
+                                m.Viatura.Matricula.Contains(searchString));
+                            break;
+                        case "telefone":
+                            filtradas = filtradas.Where(m => m.Viatura != null && m.Viatura.Cliente != null && 
+                                m.Viatura.Cliente.Telefone != null && m.Viatura.Cliente.Telefone.Contains(searchString));
+                            break;
+                        case "servico":
+                            filtradas = filtradas.Where(m => m.Servico != null && m.Servico.Contains(searchString));
+                            break;
+                        default:
+                            filtradas = filtradas.Where(m => m.Viatura != null && m.Viatura.Cliente != null && 
+                                m.Viatura.Cliente.Nome.Contains(searchString));
+                            break;
+                    }
+                    return View(await filtradas.ToListAsync());
+                }
+                
+                return View(await marcacoesQuery.ToListAsync());
             }
+            
             // Cliente autenticado: só vê as suas próprias marcações
             var username = User.Identity?.Name;
             var clienteId = _bd.Clientes.Where(c => c.UserName == username).Select(c => c.UtilizadorId).FirstOrDefault();
             var marcacoesCliente = _bd.Marcacoes.Include(m => m.Viatura)
-                .ThenInclude(v => v.Cliente)
-                .Where(m => m.Viatura.ClienteFK == clienteId);
+                .ThenInclude(v => v!.Cliente)
+                .Where(m => m.Viatura != null && m.Viatura.ClienteFK == clienteId);
             ViewBag.ClienteId = clienteId;
             return View(await marcacoesCliente.ToListAsync());
         }
@@ -135,7 +161,7 @@ namespace FluvAuto.Controllers
             HttpContext.Session.SetInt32("MarcacaoId", marcacao.MarcacaoId);
             HttpContext.Session.SetString("Acao", "Marcacoes/Edit"); // para saber que estamos a editar uma marcação, evitando trafulhices
 
-            int clienteId = marcacao.Viatura.ClienteFK;
+            int clienteId = marcacao.Viatura?.ClienteFK ?? 0;
             ViewData["ViaturaFK"] = GetViaturasSelectList(marcacao.ViaturaFK, clienteId);
             return View(marcacao);
         }
