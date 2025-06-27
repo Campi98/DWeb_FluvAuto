@@ -125,6 +125,15 @@ builder.Services.AddSwaggerGen(c =>
     }
 });
 
+// declarar o serviço do Signal R
+builder.Services.AddSignalR(options =>
+{
+    // Configurações para suportar melhor várias conexões
+    options.EnableDetailedErrors = true;
+    options.KeepAliveInterval = TimeSpan.FromSeconds(15);
+    options.ClientTimeoutInterval = TimeSpan.FromSeconds(30);
+});
+
 var app = builder.Build();
 
 // Inicializar a base de dados com dados de seed
@@ -174,5 +183,10 @@ app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
 app.MapRazorPages();
+
+
+// cria uma 'ponte' entre o nosso serviço Signal R (o MarcacoesHub)
+// e o javascript do browser
+app.MapHub<MarcacoesHub>("/marcacoeshub");
 
 app.Run();

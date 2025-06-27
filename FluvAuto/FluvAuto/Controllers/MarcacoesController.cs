@@ -8,6 +8,8 @@ using Microsoft.EntityFrameworkCore;
 using FluvAuto.Data;
 using FluvAuto.Models;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.SignalR;
+using FluvAuto.Services;
 
 namespace FluvAuto.Controllers
 {
@@ -15,10 +17,12 @@ namespace FluvAuto.Controllers
     public class MarcacoesController : Controller
     {
         private readonly ApplicationDbContext _bd;
+        private readonly IHubContext<MarcacoesHub> _hubContext;
 
-        public MarcacoesController(ApplicationDbContext context)
+        public MarcacoesController(ApplicationDbContext context, IHubContext<MarcacoesHub> hubContext)
         {
             _bd = context;
+            _hubContext = hubContext;
         }
 
         // GET: Marcacoes
@@ -29,7 +33,7 @@ namespace FluvAuto.Controllers
             {
                 var marcacoesQuery = _bd.Marcacoes
                     .Include(m => m.Viatura)
-                    .ThenInclude(v => v.Cliente);
+                    .ThenInclude(v => v!.Cliente);
 
                 if (!string.IsNullOrEmpty(searchString))
                 {
@@ -78,7 +82,7 @@ namespace FluvAuto.Controllers
 
             var marcacao = await _bd.Marcacoes
                 .Include(m => m.Viatura)
-                    .ThenInclude(v => v.Cliente)
+                    .ThenInclude(v => v!.Cliente)
                 .FirstOrDefaultAsync(m => m.MarcacaoId == id);
             if (marcacao == null)
             {
@@ -135,6 +139,42 @@ namespace FluvAuto.Controllers
             {
                 _bd.Add(marcacaoNova);
                 await _bd.SaveChangesAsync();
+                
+                // NOTIFICAÇÃO SIGNALR - Notificar APENAS o utilizador específico
+                try
+                {
+                    var marcacaoCompleta = await _bd.Marcacoes
+                        .Include(m => m.Viatura)
+                        .ThenInclude(v => v!.Cliente)
+                        .FirstOrDefaultAsync(m => m.MarcacaoId == marcacaoNova.MarcacaoId);
+
+                    if (marcacaoCompleta != null && marcacaoCompleta.Viatura?.Cliente != null)
+                    {
+                        var dadosMarcacao = new
+                        {
+                            Id = marcacaoCompleta.MarcacaoId,
+                            Data = marcacaoCompleta.DataPrevistaInicioServico.ToString("yyyy-MM-dd"),
+                            Hora = marcacaoCompleta.DataPrevistaInicioServico.ToString("HH:mm"),
+                            Servico = marcacaoCompleta.Servico ?? "Serviço não definido",
+                            Estado = marcacaoCompleta.Estado ?? "Estado não definido",
+                            Cliente = marcacaoCompleta.Viatura.Cliente.Nome ?? "Cliente não definido"
+                        };
+
+                        // Obter o username do cliente (proprietário da viatura)
+                        string clienteUserName = marcacaoCompleta.Viatura.Cliente.UserName;
+                        
+                        if (!string.IsNullOrEmpty(clienteUserName))
+                        {
+                            // NOTIFICAR APENAS O UTILIZADOR ESPECÍFICO (todas as suas conexões)
+                            await _hubContext.NotificarTodasConexoesUtilizador(clienteUserName, "NovaMarcacaoAdicionada", dadosMarcacao);
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    // Erro na notificação SignalR - continuar sem interromper o fluxo
+                }
+                
                 return RedirectToAction(nameof(Index));
             }
             ViewData["ViaturaFK"] = GetViaturasSelectList(marcacaoNova.ViaturaFK);

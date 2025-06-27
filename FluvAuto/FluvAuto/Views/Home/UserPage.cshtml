@@ -163,3 +163,57 @@
     });
 </script>
 
+<!-- SignalR para notificações de marcações em tempo real -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/7.0.0/signalr.min.js"></script>
+<script>
+    "use strict";
+
+    // Criar conexão SignalR
+    const connection = new signalR.HubConnectionBuilder()
+        .withUrl("/marcacoeshub")
+        .build();
+
+    // Conectar ao hub
+    connection.start().then(function () {
+        // SignalR conectado
+    }).catch(function (err) {
+        // Erro na conexão SignalR
+    });
+
+    // Esperar por novas marcações (específicas para este utilizador)
+    connection.on("NovaMarcacaoAdicionada", function (marcacao) {
+        const servico = marcacao.Servico || "Serviço";
+        const data = marcacao.Data || "Data";
+        const hora = marcacao.Hora || "Hora";
+        const cliente = marcacao.Cliente || "Cliente";
+        
+        // Mostrar notificação específica
+        mostrarNotificacao(`Nova marcação! ${servico} - ${data} ${hora}`, 'success');
+        
+        // Recarregar página após 3 segundos para atualizar calendário
+        setTimeout(() => {
+            location.reload();
+        }, 3000);
+    });
+
+    // Função para mostrar notificações
+    function mostrarNotificacao(mensagem, tipo) {
+        const notification = document.createElement('div');
+        notification.className = `alert alert-${tipo} alert-dismissible fade show position-fixed`;
+        notification.style.cssText = 'top: 20px; right: 20px; z-index: 1050; min-width: 300px; max-width: 400px;';
+        notification.innerHTML = `
+            <strong>${mensagem}</strong>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        `;
+        
+        document.body.appendChild(notification);
+        
+        // Remover após 5 segundos
+        setTimeout(() => {
+            if (notification.parentNode) {
+                notification.parentNode.removeChild(notification);
+            }
+        }, 5000);
+    }
+</script>
+
