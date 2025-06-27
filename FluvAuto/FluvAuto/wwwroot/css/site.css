@@ -89,14 +89,29 @@ body {
     color: white;
 }
 
+.table td a[href*="Edit"]:before {
+    content: "✏️ ";
+    margin-right: 5px;
+}
+
 .table td a[href*="Details"] {
     background-color: #28a745;
     color: white;
 }
 
+.table td a[href*="Details"]:before {
+    content: "🗒️ ";
+    margin-right: 5px;
+}
+
 .table td a[href*="Delete"] {
     background-color: #dc3545;
     color: white;
+}
+
+.table td a[href*="Delete"]:before {
+    content: "🗑️ ";
+    margin-right: 5px;
 }
 
 /* Estilos para dropdowns/selects */
@@ -122,4 +137,71 @@ select, .form-control {
 /* Melhora o texto das options */
 select option {
     white-space: nowrap;
+}
+
+/* Estilos para páginas de detalhes */
+.details-container {
+    background-color: white;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 20px;
+    margin-top: 20px;
+}
+
+.details-container h1 {
+    color: #333;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #f5f5f5;
+}
+
+.details-container dl.row {
+    margin-bottom: 0;
+}
+
+.details-container dt {
+    font-weight: bold;
+    color: #555;
+    padding: 12px 15px;
+    margin: 0;
+    border-bottom: 1px solid #eee;
+}
+
+.details-container dd {
+    padding: 12px 15px;
+    color: #333;
+    margin: 0;
+    border-bottom: 1px solid #eee;
+}
+
+/* Aplica fundo alternado a cada par de campos (dt+dd) */
+.details-container dl.row > dt:nth-of-type(even),
+.details-container dl.row > dt:nth-of-type(even) + dd {
+    background-color: #f9f9f9;
+}
+
+/* Botões de ação nas páginas de detalhes */
+.details-actions {
+    margin-top: 20px;
+    padding-top: 15px;
+    border-top: 1px solid #eee;
+}
+
+.details-actions a {
+    display: inline-block;
+    padding: 8px 16px;
+    margin-right: 10px;
+    border-radius: 4px;
+    text-decoration: none;
+    font-size: 0.9rem;
+}
+
+.details-actions a[href*="Edit"] {
+    background-color: #007bff;
+    color: white;
+}
+
+.details-actions a[href*="Index"] {
+    background-color: #6c757d;
+    color: white;
 }

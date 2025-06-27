@@ -5,10 +5,9 @@
     var isAdminOrFuncionario = User.IsInRole("admin") || User.IsInRole("funcionario");
 }
 
-<h1>Detalhes do serviço</h1>
-
-<div>
-    <hr />
+<div class="details-container">
+    <h1>Detalhes do serviço</h1>
+    
     <dl class="row">
         <dt class = "col-sm-2">
             @Html.DisplayNameFor(model => model.HorasGastas)
@@ -56,12 +55,12 @@
             </dd>
         }
     </dl>
-</div>
-<div>
-    @if (isAdminOrFuncionario)
-    {
-        @Html.ActionLink("Editar", "Edit", new { marcacaoId = Model.MarcacaoFK, funcionarioId = Model.FuncionarioFK })
-        @: |
-    }
-    <a asp-action="Index">Voltar à lista</a>
+    
+    <div class="details-actions">
+        @if (isAdminOrFuncionario)
+        {
+            @Html.ActionLink("Editar", "Edit", new { marcacaoId = Model.MarcacaoFK, funcionarioId = Model.FuncionarioFK })
+        }
+        <a asp-action="Index">Voltar à lista</a>
+    </div>
 </div>

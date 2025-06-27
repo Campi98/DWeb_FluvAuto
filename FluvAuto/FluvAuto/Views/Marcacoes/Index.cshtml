@@ -97,10 +97,13 @@
                     {
                         @Html.ActionLink("Editar", "Edit", new { id = item.MarcacaoId })
                         @: |
-                        @Html.ActionLink("Apagar", "Delete", new { id = item.MarcacaoId })
-                        @: |
                     }
                     @Html.ActionLink("Detalhes", "Details", new { id = item.MarcacaoId })
+                    @if (isAdminOrFuncionario)
+                    {
+                        @: |
+                        @Html.ActionLink("Apagar", "Delete", new { id = item.MarcacaoId })
+                    }
                 </td>
             </tr>
         }
