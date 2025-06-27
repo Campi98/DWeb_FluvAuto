@@ -104,7 +104,7 @@ namespace FluvAuto.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit([FromRoute] int id, [Bind("Funcao,UtilizadorId,UserName,Nome,Email,Telefone,Morada,CodPostal")] Funcionario funcionarioAlterado, IFormFile? fotografiaUpload, bool removerFotografiaAtual = false)
+        public async Task<IActionResult> Edit([FromRoute] int id, [Bind("Funcao,UtilizadorId,UserName,Nome,Email,Telefone,Morada,CodPostal,Fotografia")] Funcionario funcionarioAlterado, IFormFile? fotografiaUpload, bool removerFotografiaAtual = false)
         {
             // o FromRoute lê o id da URL, se houve alterações à rota, houve alterações indevidas
             // Verifica se o id da rota corresponde ao do funcionário recebido
@@ -244,7 +244,7 @@ namespace FluvAuto.Controllers
             // Validar se é uma imagem
             var extensoesPermitidas = new[] { ".jpg", ".jpeg", ".png", ".gif", ".bmp", ".webp" };
             var extensao = Path.GetExtension(ficheiro.FileName).ToLowerInvariant();
-            
+
             if (!extensoesPermitidas.Contains(extensao))
             {
                 return null;
@@ -263,12 +263,12 @@ namespace FluvAuto.Controllers
                 await ficheiro.CopyToAsync(memoryStream);
                 var imageBytes = memoryStream.ToArray();
                 var base64String = Convert.ToBase64String(imageBytes);
-                
+
                 // Determinar o tipo MIME da imagem
                 var mimeType = extensao switch
                 {
                     ".jpg" or ".jpeg" => "image/jpeg",
-                    ".png" => "image/png", 
+                    ".png" => "image/png",
                     ".gif" => "image/gif",
                     ".bmp" => "image/bmp",
                     ".webp" => "image/webp",
