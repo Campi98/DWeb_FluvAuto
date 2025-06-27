@@ -42,7 +42,7 @@ namespace FluvAuto.Models
         [ForeignKey(nameof(Marcacao))]
         [Display(Name = "Marcação")]
         public int MarcacaoFK { get; set; }
-        public Marcacao Marcacao { get; set; }
+        public Marcacao? Marcacao { get; set; }
 
         /// <summary>
         /// FK para referenciar o funcionário que realizou o serviço
@@ -50,7 +50,7 @@ namespace FluvAuto.Models
         [ForeignKey(nameof(Funcionario))]
         [Display(Name = "Funcionário")]
         public int FuncionarioFK { get; set; }
-        public Funcionario Funcionario { get; set; }
+        public Funcionario? Funcionario { get; set; }
 
     }
 }

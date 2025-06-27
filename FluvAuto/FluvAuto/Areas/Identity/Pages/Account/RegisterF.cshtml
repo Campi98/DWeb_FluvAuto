@@ -6,7 +6,7 @@
 
 <h1>@ViewData["Title"]</h1>
 
-<form id="registerForm" asp-route-returnUrl="@Model.ReturnUrl" method="post">
+<form id="registerForm" asp-route-returnUrl="@Model.ReturnUrl" method="post" enctype="multipart/form-data">
     <h2>Criar uma nova conta de Funcionário.</h2>
     <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
 
@@ -73,11 +73,14 @@
                 <label asp-for="Input.Funcionario.Funcao"></label>
                 <span asp-validation-for="Input.Funcionario.Funcao" class="text-danger"></span>
             </div>
-            <div class="form-floating mb-3">
-                <input asp-for="Input.Funcionario.Fotografia" class="form-control" autocomplete="off"
-                    aria-required="false" placeholder="Fotografia (URL)" />
-                <label asp-for="Input.Funcionario.Fotografia"></label>
-                <span asp-validation-for="Input.Funcionario.Fotografia" class="text-danger"></span>
+            <div class="mb-3">
+                <label for="fotografiaUpload" class="form-label">Fotografia</label>
+                <input type="file" id="fotografiaUpload" name="fotografiaUpload" class="form-control" 
+                       accept="image/*" onchange="previewFotografia(this)">
+                <div class="form-text">Máximo 500KB. Formatos: JPG, PNG, GIF, BMP, WebP</div>
+                <div id="fotografiaPreview" class="mt-2"></div>
+                <button type="button" id="removerFotografia" class="btn btn-sm btn-danger mt-1" 
+                        style="display: none;" onclick="removerFotografiaPreview()">Remover</button>
             </div>
             <div class="form-floating mb-3">
                 <input asp-for="Input.SecretCode" class="form-control" autocomplete="off" aria-required="true"
@@ -101,4 +104,51 @@
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+    <script>
+        function previewFotografia(input) {
+            const preview = document.getElementById('fotografiaPreview');
+            const removerBtn = document.getElementById('removerFotografia');
+            
+            if (input.files && input.files[0]) {
+                const file = input.files[0];
+                
+                // Validar tamanho (500KB)
+                if (file.size > 500 * 1024) {
+                    alert('A imagem deve ter no máximo 500KB.');
+                    input.value = '';
+                    preview.innerHTML = '';
+                    removerBtn.style.display = 'none';
+                    return;
+                }
+                
+                // Validar tipo
+                if (!file.type.startsWith('image/')) {
+                    alert('Por favor selecione apenas ficheiros de imagem.');
+                    input.value = '';
+                    preview.innerHTML = '';
+                    removerBtn.style.display = 'none';
+                    return;
+                }
+                
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    preview.innerHTML = `
+                        <img src="${e.target.result}" alt="Preview" style="max-width: 200px; max-height: 200px; border: 1px solid #ddd; border-radius: 4px;">
+                        <div class="mt-1 text-muted small">
+                            <strong>Ficheiro:</strong> ${file.name}<br>
+                            <strong>Tamanho:</strong> ${(file.size / 1024).toFixed(1)} KB
+                        </div>
+                    `;
+                    removerBtn.style.display = 'inline-block';
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+        
+        function removerFotografiaPreview() {
+            document.getElementById('fotografiaUpload').value = '';
+            document.getElementById('fotografiaPreview').innerHTML = '';
+            document.getElementById('removerFotografia').style.display = 'none';
+        }
+    </script>
 }

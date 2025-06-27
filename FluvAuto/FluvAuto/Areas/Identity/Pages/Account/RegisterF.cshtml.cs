@@ -117,7 +117,7 @@ namespace FluvAuto.Areas.Identity.Pages.Account
             ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
         }
 
-        public async Task<IActionResult> OnPostAsync(string returnUrl = null)
+        public async Task<IActionResult> OnPostAsync(string returnUrl = null, IFormFile fotografiaUpload = null)
         {
             returnUrl ??= Url.Content("~/");
             ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
@@ -145,9 +145,20 @@ namespace FluvAuto.Areas.Identity.Pages.Account
 
                     bool haErro = false;
 
-                    // Associar o UserName do utilizador Identity ao Funcionário
+                    // Associar os dados do utilizador Identity ao Funcionário
+                    // O UtilizadorId será gerado automaticamente pelo EF como chave primária
                     Input.Funcionario.UserName = Input.Email;
                     Input.Funcionario.Email = Input.Email;
+
+                    // Processar upload da fotografia se existir
+                    if (fotografiaUpload != null && fotografiaUpload.Length > 0)
+                    {
+                        var fotografiaBase64 = await ProcessarUploadFotografia(fotografiaUpload);
+                        if (!string.IsNullOrEmpty(fotografiaBase64))
+                        {
+                            Input.Funcionario.Fotografia = fotografiaBase64;
+                        }
+                    }
 
                     try
                     {
@@ -222,6 +233,56 @@ namespace FluvAuto.Areas.Identity.Pages.Account
                 throw new NotSupportedException("The default UI requires a user store with email support.");
             }
             return (IUserEmailStore<IdentityUser>)_userStore;
+        }
+
+        /// <summary>
+        /// Processa o upload da fotografia e converte para Base64
+        /// </summary>
+        /// <param name="ficheiro">ficheiro de imagem enviado</param>
+        /// <returns>String Base64 da imagem</returns>
+        private async Task<string> ProcessarUploadFotografia(IFormFile ficheiro)
+        {
+            // Validar se é uma imagem
+            var extensoesPermitidas = new[] { ".jpg", ".jpeg", ".png", ".gif", ".bmp", ".webp" };
+            var extensao = Path.GetExtension(ficheiro.FileName).ToLowerInvariant();
+            
+            if (!extensoesPermitidas.Contains(extensao))
+            {
+                return null;
+            }
+
+            // Validar tamanho do ficheiro (máximo 500KB)
+            if (ficheiro.Length > 500 * 1024)
+            {
+                return null;
+            }
+
+            try
+            {
+                // Converter para Base64
+                using var memoryStream = new MemoryStream();
+                await ficheiro.CopyToAsync(memoryStream);
+                var imageBytes = memoryStream.ToArray();
+                var base64String = Convert.ToBase64String(imageBytes);
+                
+                // Determinar o tipo MIME da imagem
+                var mimeType = extensao switch
+                {
+                    ".jpg" or ".jpeg" => "image/jpeg",
+                    ".png" => "image/png", 
+                    ".gif" => "image/gif",
+                    ".bmp" => "image/bmp",
+                    ".webp" => "image/webp",
+                    _ => "image/jpeg"
+                };
+
+                // Retornar no formato data URL
+                return $"data:{mimeType};base64,{base64String}";
+            }
+            catch
+            {
+                return null;
+            }
         }
     }
 }

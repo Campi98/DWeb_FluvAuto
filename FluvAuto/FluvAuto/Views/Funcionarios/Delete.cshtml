@@ -19,7 +19,14 @@
             @Html.DisplayNameFor(model => model.Fotografia)
         </dt>
         <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Fotografia)
+            @if (!string.IsNullOrEmpty(Model.Fotografia))
+            {
+                <img src="@Model.Fotografia" alt="Fotografia do funcionário" style="max-width: 150px; max-height: 150px; border: 1px solid #ddd; border-radius: 4px;" />
+            }
+            else
+            {
+                <span class="text-muted">Sem fotografia</span>
+            }
         </dd>
         <dt class = "col-sm-2">
             @Html.DisplayNameFor(model => model.UserName)

@@ -6,17 +6,11 @@
 
 <h1>Clientes</h1>
 
-<p>
-    <a asp-action="Create">Adicionar cliente</a>
-</p>
 <table class="table">
     <thead>
         <tr>
             <th>
                 @Html.DisplayNameFor(model => model.NIF)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.UserName)
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.Nome)
@@ -41,9 +35,6 @@
         <tr>
             <td>
                 @Html.DisplayFor(modelItem => item.NIF)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.UserName)
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.Nome)

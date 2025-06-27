@@ -6,9 +6,6 @@
 
 <h1>Funcionários</h1>
 
-<p>
-    <a asp-action="Create">Adicionar Funcionário</a>
-</p>
 <table class="table">
     <thead>
         <tr>
@@ -17,9 +14,6 @@
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.Fotografia)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.UserName)
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.Nome)
@@ -46,10 +40,14 @@
                 @Html.DisplayFor(modelItem => item.Funcao)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.Fotografia)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.UserName)
+                @if (!string.IsNullOrEmpty(item.Fotografia))
+                {
+                    <img src="@item.Fotografia" alt="Foto" style="width: 50px; height: 50px; object-fit: cover; border-radius: 4px;" />
+                }
+                else
+                {
+                    <span class="text-muted">-</span>
+                }
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.Nome)

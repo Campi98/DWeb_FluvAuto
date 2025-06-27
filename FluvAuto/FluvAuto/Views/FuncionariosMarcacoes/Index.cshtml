@@ -90,10 +90,13 @@
                     {
                         @Html.ActionLink("Editar", "Edit", new { marcacaoId = item.MarcacaoFK, funcionarioId = item.FuncionarioFK })
                         @: |
-                        @Html.ActionLink("Apagar", "Delete", new { marcacaoId = item.MarcacaoFK, funcionarioId = item.FuncionarioFK })
-                        @: |
                     }
                     @Html.ActionLink("Detalhes", "Details", new { marcacaoId = item.MarcacaoFK, funcionarioId = item.FuncionarioFK })
+                    @if (isAdminOrFuncionario)
+                    {
+                        @: |
+                        @Html.ActionLink("Apagar", "Delete", new { marcacaoId = item.MarcacaoFK, funcionarioId = item.FuncionarioFK })
+                    }
                 </td>
             </tr>
         }

@@ -56,8 +56,18 @@ namespace FluvAuto.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Funcao,Fotografia,UtilizadorId,UserName,Nome,Email,Telefone,Morada,CodPostal")] Funcionario funcionarioNovo)
+        public async Task<IActionResult> Create([Bind("Funcao,UtilizadorId,UserName,Nome,Email,Telefone,Morada,CodPostal")] Funcionario funcionarioNovo, IFormFile? fotografiaUpload)
         {
+            // Processar upload da fotografia se existir
+            if (fotografiaUpload != null && fotografiaUpload.Length > 0)
+            {
+                var caminhoFotografia = await ProcessarUploadFotografia(fotografiaUpload);
+                if (!string.IsNullOrEmpty(caminhoFotografia))
+                {
+                    funcionarioNovo.Fotografia = caminhoFotografia;
+                }
+            }
+
             if (ModelState.IsValid)
             {
                 _bd.Add(funcionarioNovo);
@@ -94,7 +104,7 @@ namespace FluvAuto.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit([FromRoute] int id, [Bind("Funcao,Fotografia,UtilizadorId,UserName,Nome,Email,Telefone,Morada,CodPostal")] Funcionario funcionarioAlterado)
+        public async Task<IActionResult> Edit([FromRoute] int id, [Bind("Funcao,UtilizadorId,UserName,Nome,Email,Telefone,Morada,CodPostal,Fotografia")] Funcionario funcionarioAlterado, IFormFile? fotografiaUpload, bool removerFotografiaAtual = false)
         {
             // o FromRoute lê o id da URL, se houve alterações à rota, houve alterações indevidas
             // Verifica se o id da rota corresponde ao do funcionário recebido
@@ -117,6 +127,30 @@ namespace FluvAuto.Controllers
             {
                 // O utilizador está a tentar alterar outro objeto diferente do que recebeu
                 return RedirectToAction(nameof(Index));
+            }
+
+            // Processar upload da fotografia se existir
+            if (fotografiaUpload != null && fotografiaUpload.Length > 0)
+            {
+                var caminhoFotografia = await ProcessarUploadFotografia(fotografiaUpload);
+                if (!string.IsNullOrEmpty(caminhoFotografia))
+                {
+                    funcionarioAlterado.Fotografia = caminhoFotografia;
+                }
+            }
+            else if (removerFotografiaAtual)
+            {
+                // Remover a fotografia atual (definir como string vazia)
+                funcionarioAlterado.Fotografia = "";
+            }
+            else
+            {
+                // Manter a fotografia existente se não houver upload novo nem remoção
+                var funcionarioExistente = await _bd.Funcionarios.AsNoTracking().FirstOrDefaultAsync(f => f.UtilizadorId == funcionarioAlterado.UtilizadorId);
+                if (funcionarioExistente != null)
+                {
+                    funcionarioAlterado.Fotografia = funcionarioExistente.Fotografia;
+                }
             }
 
             if (ModelState.IsValid)
@@ -198,6 +232,56 @@ namespace FluvAuto.Controllers
         private bool FuncionarioExists(int id)
         {
             return _bd.Funcionarios.Any(e => e.UtilizadorId == id);
+        }
+
+        /// <summary>
+        /// Processa o upload da fotografia e converte para Base64
+        /// </summary>
+        /// <param name="ficheiro">Ficheiro de imagem enviado</param>
+        /// <returns>String Base64 da imagem</returns>
+        private async Task<string?> ProcessarUploadFotografia(IFormFile ficheiro)
+        {
+            // Validar se é uma imagem
+            var extensoesPermitidas = new[] { ".jpg", ".jpeg", ".png", ".gif", ".bmp", ".webp" };
+            var extensao = Path.GetExtension(ficheiro.FileName).ToLowerInvariant();
+
+            if (!extensoesPermitidas.Contains(extensao))
+            {
+                return null;
+            }
+
+            // Validar tamanho do ficheiro (máximo 500KB)
+            if (ficheiro.Length > 500 * 1024)
+            {
+                return null;
+            }
+
+            try
+            {
+                // Converter para Base64
+                using var memoryStream = new MemoryStream();
+                await ficheiro.CopyToAsync(memoryStream);
+                var imageBytes = memoryStream.ToArray();
+                var base64String = Convert.ToBase64String(imageBytes);
+
+                // Determinar o tipo MIME da imagem
+                var mimeType = extensao switch
+                {
+                    ".jpg" or ".jpeg" => "image/jpeg",
+                    ".png" => "image/png",
+                    ".gif" => "image/gif",
+                    ".bmp" => "image/bmp",
+                    ".webp" => "image/webp",
+                    _ => "image/jpeg"
+                };
+
+                // Retornar no formato data URL
+                return $"data:{mimeType};base64,{base64String}";
+            }
+            catch
+            {
+                return null;
+            }
         }
     }
 }
