@@ -104,7 +104,7 @@ namespace FluvAuto.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit([FromRoute] int id, [Bind("Funcao,UtilizadorId,UserName,Nome,Email,Telefone,Morada,CodPostal")] Funcionario funcionarioAlterado, IFormFile? fotografiaUpload)
+        public async Task<IActionResult> Edit([FromRoute] int id, [Bind("Funcao,UtilizadorId,UserName,Nome,Email,Telefone,Morada,CodPostal")] Funcionario funcionarioAlterado, IFormFile? fotografiaUpload, bool removerFotografiaAtual = false)
         {
             // o FromRoute lê o id da URL, se houve alterações à rota, houve alterações indevidas
             // Verifica se o id da rota corresponde ao do funcionário recebido
@@ -138,9 +138,14 @@ namespace FluvAuto.Controllers
                     funcionarioAlterado.Fotografia = caminhoFotografia;
                 }
             }
+            else if (removerFotografiaAtual)
+            {
+                // Remover a fotografia atual (definir como string vazia)
+                funcionarioAlterado.Fotografia = "";
+            }
             else
             {
-                // Manter a fotografia existente se não houver upload novo
+                // Manter a fotografia existente se não houver upload novo nem remoção
                 var funcionarioExistente = await _bd.Funcionarios.AsNoTracking().FirstOrDefaultAsync(f => f.UtilizadorId == funcionarioAlterado.UtilizadorId);
                 if (funcionarioExistente != null)
                 {
@@ -232,21 +237,21 @@ namespace FluvAuto.Controllers
         /// <summary>
         /// Processa o upload da fotografia e converte para Base64
         /// </summary>
-        /// <param name="arquivo">Arquivo de imagem enviado</param>
+        /// <param name="ficheiro">Ficheiro de imagem enviado</param>
         /// <returns>String Base64 da imagem</returns>
-        private async Task<string?> ProcessarUploadFotografia(IFormFile arquivo)
+        private async Task<string?> ProcessarUploadFotografia(IFormFile ficheiro)
         {
             // Validar se é uma imagem
             var extensoesPermitidas = new[] { ".jpg", ".jpeg", ".png", ".gif", ".bmp", ".webp" };
-            var extensao = Path.GetExtension(arquivo.FileName).ToLowerInvariant();
+            var extensao = Path.GetExtension(ficheiro.FileName).ToLowerInvariant();
             
             if (!extensoesPermitidas.Contains(extensao))
             {
                 return null;
             }
 
-            // Validar tamanho do arquivo (máximo 500KB)
-            if (arquivo.Length > 500 * 1024)
+            // Validar tamanho do ficheiro (máximo 500KB)
+            if (ficheiro.Length > 500 * 1024)
             {
                 return null;
             }
@@ -255,7 +260,7 @@ namespace FluvAuto.Controllers
             {
                 // Converter para Base64
                 using var memoryStream = new MemoryStream();
-                await arquivo.CopyToAsync(memoryStream);
+                await ficheiro.CopyToAsync(memoryStream);
                 var imageBytes = memoryStream.ToArray();
                 var base64String = Convert.ToBase64String(imageBytes);
                 
