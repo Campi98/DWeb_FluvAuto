@@ -9,7 +9,7 @@
 <hr />
 <div class="row">
     <div class="col-md-4">
-        <form asp-action="Edit">
+        <form asp-action="Edit" enctype="multipart/form-data">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <div class="form-group">
                 <label asp-for="Funcao" class="control-label"></label>
@@ -17,9 +17,23 @@
                 <span asp-validation-for="Funcao" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="Fotografia" class="control-label"></label>
-                <input asp-for="Fotografia" class="form-control" />
-                <span asp-validation-for="Fotografia" class="text-danger"></span>
+                <label class="control-label">Fotografia (opcional)</label>
+                <div class="photo-upload-container">
+                    @if (!string.IsNullOrEmpty(Model.Fotografia))
+                    {
+                        <div id="currentPhotoContainer" style="margin-bottom: 10px;">
+                            <img src="@Model.Fotografia" alt="Fotografia atual" style="max-width: 150px; max-height: 150px; border: 1px solid #ddd; border-radius: 4px;" />
+                            <p style="font-size: 0.9em; color: #666;">Fotografia atual</p>
+                        </div>
+                    }
+                    <input type="file" id="fotografiaUpload" name="fotografiaUpload" accept="image/*" class="form-control" onchange="previewFotografia(this)" />
+                    <small class="form-text text-muted">Máximo 500KB. Formatos aceites: JPG, PNG, GIF, BMP, WebP</small>
+                    <div id="photoPreviewContainer" style="display: none; margin-top: 10px;">
+                        <img id="photoPreview" src="" alt="Preview da nova fotografia" style="max-width: 150px; max-height: 150px; border: 1px solid #ddd; border-radius: 4px;" />
+                        <button type="button" id="removePhotoBtn" onclick="removerFotografia()" style="display: block; margin-top: 5px; color: red; background: none; border: none; cursor: pointer;">✕ Remover nova foto</button>
+                        <div id="fileInfo" style="font-size: 0.8em; color: #666; margin-top: 5px;"></div>
+                    </div>
+                </div>
             </div>
             <input type="hidden" asp-for="UtilizadorId" />
             <div class="form-group">
@@ -65,4 +79,46 @@
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        function previewFotografia(input) {
+            const previewContainer = document.getElementById('photoPreviewContainer');
+            const preview = document.getElementById('photoPreview');
+            
+            if (input.files && input.files[0]) {
+                const file = input.files[0];
+                
+                // Validar tipo de arquivo
+                if (!file.type.startsWith('image/')) {
+                    alert('Por favor, selecione apenas arquivos de imagem.');
+                    input.value = '';
+                    return;
+                }
+                
+                // Validar tamanho (500KB)
+                if (file.size > 500 * 1024) {
+                    alert('A imagem é muito grande. Por favor, selecione uma imagem menor que 500KB.');
+                    input.value = '';
+                    return;
+                }
+                
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    preview.src = e.target.result;
+                    previewContainer.style.display = 'block';
+                    
+                    // Mostrar informações do arquivo
+                    const fileInfo = document.getElementById('fileInfo');
+                    const fileSizeKB = (file.size / 1024).toFixed(1);
+                    fileInfo.textContent = `${file.name} (${fileSizeKB} KB)`;
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+        
+        function removerFotografia() {
+            document.getElementById('fotografiaUpload').value = '';
+            document.getElementById('photoPreviewContainer').style.display = 'none';
+            document.getElementById('photoPreview').src = '';
+        }
+    </script>
 }
