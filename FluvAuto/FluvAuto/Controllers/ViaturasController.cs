@@ -127,10 +127,24 @@ namespace FluvAuto.Controllers
                 return NotFound();
             }
 
-            var viatura = await _bd.Viaturas.FindAsync(id);
+            var viatura = await _bd.Viaturas
+                .Include(v => v.Cliente)
+                .FirstOrDefaultAsync(v => v.ViaturaId == id);
             if (viatura == null)
             {
                 return NotFound();
+            }
+
+            // Verificar permissões: admin/funcionário pode editar qualquer viatura, cliente só as suas
+            if (!User.IsInRole("admin") && !User.IsInRole("funcionario"))
+            {
+                var username = User.Identity?.Name;
+                var clienteId = _bd.Clientes.Where(c => c.UserName == username).Select(c => c.UtilizadorId).FirstOrDefault();
+                
+                if (viatura.ClienteFK != clienteId)
+                {
+                    return Forbid(); // Cliente não pode editar viatura de outro cliente
+                }
             }
 
             // se o código chega aqui, é porque há "viatura" para editar
@@ -138,7 +152,13 @@ namespace FluvAuto.Controllers
             HttpContext.Session.SetInt32("ViaturaId", viatura.ViaturaId);
             HttpContext.Session.SetString("Acao", "Viaturas/Edit"); // para saber que estamos a editar uma viatura, evitando trafulhices
 
-            ViewData["ClienteFK"] = new SelectList(_bd.Clientes, "UtilizadorId", "Email", viatura.ClienteFK);
+            // Passar informações do cliente para a view (para mostrar de quem é a viatura)
+            if (viatura.Cliente != null)
+            {
+                ViewBag.ClienteNome = viatura.Cliente.Nome;
+                ViewBag.ClienteEmail = viatura.Cliente.Email;
+            }
+
             return View(viatura);
         }
 
@@ -174,27 +194,55 @@ namespace FluvAuto.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
-            // Obter o username do utilizador autenticado
-            var username = User.Identity?.Name;
-            if (string.IsNullOrEmpty(username))
+            // Obter o ClienteFK original da viatura (para manter o proprietário original)
+            var clienteFKOriginal = await _bd.Viaturas
+                .Where(v => v.ViaturaId == viaturaAlterada.ViaturaId)
+                .Select(v => v.ClienteFK)
+                .FirstOrDefaultAsync();
+
+            if (clienteFKOriginal == 0)
             {
-                ModelState.AddModelError(string.Empty, "Utilizador não autenticado.");
-                return View(viaturaAlterada);
+                return NotFound();
             }
+
+            // Se for admin ou funcionário, manter o ClienteFK original
+            // Se for cliente, verificar se é o proprietário da viatura
+            if (User.IsInRole("admin") || User.IsInRole("funcionario"))
+            {
+                // Admin/Funcionário pode editar qualquer viatura, mantendo o proprietário original
+                viaturaAlterada.ClienteFK = clienteFKOriginal;
+            }
+            else
+            {
+                // Cliente: verificar se é o proprietário da viatura
+                var username = User.Identity?.Name;
+                if (string.IsNullOrEmpty(username))
+                {
+                    ModelState.AddModelError(string.Empty, "Utilizador não autenticado.");
+                    return View(viaturaAlterada);
+                }
             // Obter o ID do utilizador autenticado
-            var clienteId = _bd.Clientes
-                .Where(c => c.UserName == username)
-                .Select(c => c.UtilizadorId)
-                .FirstOrDefault();
+                var clienteId = _bd.Clientes
+                    .Where(c => c.UserName == username)
+                    .Select(c => c.UtilizadorId)
+                    .FirstOrDefault();
 
-            if (clienteId == 0)
-            {
-                ModelState.AddModelError(string.Empty, "Cliente não encontrado.");
-                return View(viaturaAlterada);
+                if (clienteId == 0)
+                {
+                    ModelState.AddModelError(string.Empty, "Cliente não encontrado.");
+                    return View(viaturaAlterada);
+                }
+
+                // Verificar se o cliente é o proprietário da viatura
+                if (clienteFKOriginal != clienteId)
+                {
+                    ModelState.AddModelError(string.Empty, "Não tem permissão para editar esta viatura.");
+                    return View(viaturaAlterada);
+                }
+
+                // Manter o ClienteFK original (que é o mesmo do cliente autenticado)
+                viaturaAlterada.ClienteFK = clienteId;
             }
-
-            // Associar o cliente autenticado à viatura
-            viaturaAlterada.ClienteFK = clienteId;
 
             if (ModelState.IsValid)
             {
