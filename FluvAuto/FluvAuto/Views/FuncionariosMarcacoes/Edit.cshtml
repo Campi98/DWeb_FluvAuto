@@ -18,19 +18,29 @@
             </div>
             <div class="form-group">
                 <label asp-for="Comentarios" class="control-label"></label>
-                <input asp-for="Comentarios" class="form-control" />
+                <textarea asp-for="Comentarios" class="form-control" rows="3"></textarea>
                 <span asp-validation-for="Comentarios" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <label asp-for="DataInicioServico" class="control-label"></label>
-                <input asp-for="DataInicioServico" class="form-control" />
+                <input asp-for="DataInicioServico" class="form-control" type="datetime-local" />
                 <span asp-validation-for="DataInicioServico" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <label class="control-label">Viatura</label>
                 <input class="form-control"
-                    value="@(Model.Marcacao?.Viatura != null ? ($"{Model.Marcacao.Viatura.Marca} {Model.Marcacao.Viatura.Modelo} - {Model.Marcacao.Viatura.Matricula}") : "-")"
-                    readonly />
+                    value="@(Model.Marcacao?.Viatura != null ? ($"{Model.Marcacao.Viatura.Marca} {Model.Marcacao.Viatura.Modelo} - {Model.Marcacao.Viatura.Matricula}") : "Informação não disponível")"
+                    readonly style="background-color: #f8f9fa;" />
+                @if (Model.Marcacao?.Viatura?.Cliente != null)
+                {
+                    <small class="form-text text-muted">Proprietário: @Model.Marcacao.Viatura.Cliente.Nome</small>
+                }
+            </div>
+            <div class="form-group">
+                <label class="control-label">Serviço</label>
+                <input class="form-control"
+                    value="@(Model.Marcacao?.Servico ?? "Serviço não especificado")"
+                    readonly style="background-color: #f8f9fa;" />
             </div>
             <input type="hidden" asp-for="MarcacaoFK" />
             <input type="hidden" asp-for="FuncionarioFK" />

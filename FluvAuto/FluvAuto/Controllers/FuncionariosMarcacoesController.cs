@@ -149,6 +149,10 @@ namespace FluvAuto.Controllers
             }
 
             var funcionariosMarcacoes = await _bd.FuncionariosMarcacoes
+                .Include(f => f.Marcacao)
+                    .ThenInclude(m => m.Viatura)
+                        .ThenInclude(v => v.Cliente)
+                .Include(f => f.Funcionario)
                 .FirstOrDefaultAsync(m => m.MarcacaoFK == marcacaoId && m.FuncionarioFK == funcionarioId);
 
             if (funcionariosMarcacoes == null)
@@ -177,8 +181,22 @@ namespace FluvAuto.Controllers
             {
                 try
                 {
-                    _bd.Update(funcionarioMarcacaoAlterada);
+                    // Verificar se o registo existe antes de tentar atualizar
+                    var registoExistente = await _bd.FuncionariosMarcacoes
+                        .FirstOrDefaultAsync(fm => fm.MarcacaoFK == marcacaoId && fm.FuncionarioFK == funcionarioId);
+                    
+                    if (registoExistente == null)
+                    {
+                        return NotFound();
+                    }
+
+                    // Atualizar apenas os campos que podem ser editados
+                    registoExistente.HorasGastas = funcionarioMarcacaoAlterada.HorasGastas;
+                    registoExistente.Comentarios = funcionarioMarcacaoAlterada.Comentarios;
+                    registoExistente.DataInicioServico = funcionarioMarcacaoAlterada.DataInicioServico;
+
                     await _bd.SaveChangesAsync();
+                    return RedirectToAction(nameof(Index));
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -191,11 +209,34 @@ namespace FluvAuto.Controllers
                         throw;
                     }
                 }
-                return RedirectToAction(nameof(Index));
+                catch (Exception ex)
+                {
+                    // Adicionar erro de debug para identificar problemas
+                    ModelState.AddModelError("", $"Erro ao guardar: {ex.Message}");
+                }
             }
+            else
+            {
+                // Debug: mostrar erros de validação
+                foreach (var modelError in ModelState.Values.SelectMany(v => v.Errors))
+                {
+                    ModelState.AddModelError("", $"Erro de validação: {modelError.ErrorMessage}");
+                }
+            }
+
+            // Se chegou aqui, houve erro - recarregar a view com os dados necessários
+            var funcionariosMarcacoes = await _bd.FuncionariosMarcacoes
+                .Include(f => f.Marcacao)
+                    .ThenInclude(m => m.Viatura)
+                        .ThenInclude(v => v.Cliente)
+                .Include(f => f.Funcionario)
+                .FirstOrDefaultAsync(m => m.MarcacaoFK == marcacaoId && m.FuncionarioFK == funcionarioId);
+
             ViewData["FuncionarioFK"] = new SelectList(_bd.Funcionarios, "UtilizadorId", "Nome", funcionarioMarcacaoAlterada.FuncionarioFK);
             ViewData["MarcacaoFK"] = new SelectList(_bd.Marcacoes, "MarcacaoId", "Servico", funcionarioMarcacaoAlterada.MarcacaoFK);
-            return View(funcionarioMarcacaoAlterada);
+            
+            // Retornar o registo original com os dados das relações para a view funcionar
+            return View(funcionariosMarcacoes ?? funcionarioMarcacaoAlterada);
         }
 
         // GET: FuncionariosMarcacoes/Delete/5
