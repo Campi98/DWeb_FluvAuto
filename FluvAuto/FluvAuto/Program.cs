@@ -141,17 +141,6 @@ using (var scope = app.Services.CreateScope())
 if (app.Environment.IsDevelopment())
 {
     app.UseMigrationsEndPoint();
-
-    // iniciar o 'middleware' do Swagger
-    app.UseSwagger();
-    app.UseSwaggerUI(c =>
-    {
-        c.SwaggerEndpoint("/swagger/v1/swagger.json", "FluvAuto API v1");
-        c.DocumentTitle = "FluvAuto API - Documentação";
-        c.DefaultModelsExpandDepth(-1); // Oculta os schemas por defeito
-        c.DisplayRequestDuration(); // Mostra tempo de resposta
-        c.EnableTryItOutByDefault(); // Ativa "Try it out" por defeito
-    });
 }
 else
 {
@@ -159,6 +148,17 @@ else
     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
+
+// Mover o Swagger para fora do if
+app.UseSwagger();
+app.UseSwaggerUI(c =>
+{
+    c.SwaggerEndpoint("/swagger/v1/swagger.json", "FluvAuto API v1");
+    c.DocumentTitle = "FluvAuto API - Documentação";
+    c.DefaultModelsExpandDepth(-1); // Oculta os schemas por defeito
+    c.DisplayRequestDuration(); // Mostra tempo de resposta
+    c.EnableTryItOutByDefault(); // Ativa "Try it out" por defeito
+});
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
