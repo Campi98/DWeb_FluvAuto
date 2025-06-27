@@ -1,20 +1,46 @@
 ﻿@{
     ViewData["Title"] = "Desenvolvimento Web 2024/2025";
 }
-<div class="text-center text-black">
-    <h1>@ViewData["Title"]</h1>
 
-    <h2>Licenciatura em Engenharia Informática</h2>
-    <p>João Campos nº 25269<br />
-        Tiago Ferreira nº 23412</p>
+<div class="container-fluid">
+    <div class="row h-100">
+        <!-- Coluna Esquerda: Logo e Informações -->
+        <div class="col-md-6 d-flex flex-column justify-content-center align-items-center text-center text-black" style="min-height: 80vh;">
+            <img src="~/logo_ipt.png" alt="Logo IPT" style="height: 120px; width: auto; margin-bottom: 30px;" />
+            <h1 style="margin-bottom: 20px;">@ViewData["Title"]</h1>
+            <h2 style="margin-bottom: 20px;">Licenciatura em Engenharia Informática</h2>
+            <p style="font-size: 1.1em; line-height: 1.6;">
+                João Campos nº 25269<br />
+                Tiago Ferreira nº 23412
+            </p>
+        </div>
 
-    <h3>Bibliotecas, frameworks e código de terceiros</h3>
-    <ul class="list-unstyled">
-        <li>ASP.NET Core MVC</li>
-        <li>Bootstrap</li>
-        <li>jQuery</li>
-        <li>acrescentar Swagger, signalR etc.</li>
-    </ul>
-
-    <p>meter símbolo ipt</p>
+        <!-- Coluna Direita: Bibliotecas e Tecnologias -->
+        <div class="col-md-6 d-flex flex-column justify-content-center align-items-center text-center text-black" style="min-height: 80vh; padding-left: 40px;">
+            <h3 style="margin-bottom: 25px;">Bibliotecas, frameworks e código de terceiros</h3>
+            <div style="font-size: 0.95em; line-height: 1.5;">
+                <p><strong>Backend Framework:</strong><br />
+                ASP.NET Core 8.0 MVC + Identity<br />
+                Entity Framework Core 8.0<br />
+                SignalR (Notificações em tempo real)</p>
+                
+                <p><strong>Base de Dados:</strong><br />
+                SQL Server ; Entity Framework Migrations</p>
+                
+                <p><strong>API e Documentação:</strong><br />
+                Swagger<br />
+                JWT Bearer Authentication</p>
+                
+                <p><strong>Frontend:</strong><br />
+                Razor Pages e Views<br />
+                Microsoft SignalR Client (JavaScript)</p>
+                
+                <p><strong>Desenvolvimento:</strong><br />
+                Code Completions do VS2022<br />
+                Debbuger do VS2022<br />
+                ASP.NET Core Diagnostics<br />
+                User Secrets</p>
+            </div>
+        </div>
+    </div>
 </div>

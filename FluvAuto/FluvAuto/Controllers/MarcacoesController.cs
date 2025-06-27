@@ -175,7 +175,16 @@ namespace FluvAuto.Controllers
                     // Erro na notificação SignalR - continuar sem interromper o fluxo
                 }
                 
-                return RedirectToAction(nameof(Index));
+                // Redirecionar baseado no tipo de utilizador
+                if (User.IsInRole("admin") || User.IsInRole("funcionario"))
+                {
+                    return RedirectToAction(nameof(Index));
+                }
+                else
+                {
+                    // Cliente: redirecionar para a página de utilizador
+                    return RedirectToAction("UserPage", "Home");
+                }
             }
             ViewData["ViaturaFK"] = GetViaturasSelectList(marcacaoNova.ViaturaFK);
             return View(marcacaoNova);
