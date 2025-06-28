@@ -3,25 +3,69 @@
 @{
     ViewData["Title"] = "Index";
     var isAdminOrFuncionario = User.IsInRole("admin") || User.IsInRole("funcionario");
-    string? searchString = Context.Request.Query["searchString"].ToString();
-    string? searchField = Context.Request.Query["searchField"].ToString();
 }
 
 <h1>Serviços</h1>
 
 @if (isAdminOrFuncionario)
 {
-    <form method="get" class="mb-3">
-        <div class="input-group">
-            <select name="searchField" class="form-select" style="max-width: 180px;">
-                <option value="nome" selected="@(searchField == null || searchField == "nome" ? "selected" : null)">Nome do Cliente</option>
-                <option value="nome_funcionario" selected="@(searchField == "nome_funcionario" ? "selected" : null)">Nome do Funcionário</option>
-                <option value="matricula" selected="@(searchField == "matricula" ? "selected" : null)">Matrícula</option>
-                <option value="telefone" selected="@(searchField == "telefone" ? "selected" : null)">Telefone</option>
-                <option value="servico" selected="@(searchField == "servico" ? "selected" : null)">Serviço</option>
-            </select>
-            <input type="text" name="searchString" value="@searchString" class="form-control" placeholder="Pesquisar..." />
-            <button type="submit" class="btn btn-primary">Pesquisar</button>
+    <form method="get" id="filterForm" class="mb-3">
+        <div class="row g-2">
+            <div class="col-md-2">
+                <label class="form-label small">Cliente</label>
+                <select name="nomeCliente" class="form-select form-select-sm filter-dropdown">
+                    <option value="">Todos</option>
+                    @if (ViewBag.NomesClientes != null)
+                    {
+                        @foreach (var nome in ViewBag.NomesClientes)
+                        {
+                            <option value="@nome" selected="@(Context.Request.Query["nomeCliente"].ToString() == nome ? "selected" : null)">@nome</option>
+                        }
+                    }
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label class="form-label small">Telefone (cliente)</label>
+                <input type="text" name="telefone" id="telefoneInput" class="form-control form-control-sm filter-input" 
+                       placeholder="Digite o telefone..." 
+                       value="@Context.Request.Query["telefone"]" />
+            </div>
+            <div class="col-md-2">
+                <label class="form-label small">Matrícula</label>
+                <input type="text" name="matricula" id="matriculaInput" class="form-control form-control-sm filter-input" 
+                       placeholder="00-00-00" 
+                       value="@Context.Request.Query["matricula"]" 
+                       maxlength="8" />
+            </div>
+            <div class="col-md-2">
+                <label class="form-label small">Funcionário</label>
+                <select name="nomeFuncionario" class="form-select form-select-sm filter-dropdown">
+                    <option value="">Todos</option>
+                    @if (ViewBag.NomesFuncionarios != null)
+                    {
+                        @foreach (var nome in ViewBag.NomesFuncionarios)
+                        {
+                            <option value="@nome" selected="@(Context.Request.Query["nomeFuncionario"].ToString() == nome ? "selected" : null)">@nome</option>
+                        }
+                    }
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label class="form-label small">Serviço</label>
+                <select name="servico" class="form-select form-select-sm filter-dropdown">
+                    <option value="">Todos</option>
+                    @if (ViewBag.Servicos != null)
+                    {
+                        @foreach (var servico in ViewBag.Servicos)
+                        {
+                            <option value="@servico" selected="@(Context.Request.Query["servico"].ToString() == servico ? "selected" : null)">@servico</option>
+                        }
+                    }
+                </select>
+            </div>
+            <div class="col-md-2 d-flex align-items-end">
+                <button type="button" onclick="clearFilters()" class="btn btn-outline-secondary btn-sm w-100">Limpar</button>
+            </div>
         </div>
     </form>
     <p>
@@ -102,3 +146,82 @@
         }
     </tbody>
 </table>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Auto-submit form quando qualquer dropdown mudar
+        const dropdowns = document.querySelectorAll('.filter-dropdown');
+        dropdowns.forEach(function(dropdown) {
+            dropdown.addEventListener('change', function() {
+                document.getElementById('filterForm').submit();
+            });
+        });
+        
+        // Tratamento especial para telefone - submeter apenas com 9 dígitos
+        const telefoneInput = document.getElementById('telefoneInput');
+        if (telefoneInput) {
+            telefoneInput.addEventListener('input', function(e) {
+                // Remove tudo exceto números
+                let numericValue = e.target.value.replace(/[^0-9]/g, '');
+                
+                // Limita a 9 dígitos
+                if (numericValue.length > 9) {
+                    numericValue = numericValue.substring(0, 9);
+                }
+                
+                // Atualiza o valor do campo
+                e.target.value = numericValue;
+                
+                // Submete quando tiver 9 dígitos ou estiver vazio
+                if (numericValue.length === 9 || numericValue.length === 0) {
+                    document.getElementById('filterForm').submit();
+                }
+            });
+        }
+        
+        // Formatação automática da matrícula e submissão com 6 caracteres
+        const matriculaInput = document.getElementById('matriculaInput');
+        if (matriculaInput) {
+            matriculaInput.addEventListener('input', function(e) {
+                let value = e.target.value.replace(/[^0-9A-Za-z]/g, '').toUpperCase(); // Remove tudo exceto números e letras
+                
+                // Limita a 6 caracteres
+                if (value.length > 6) {
+                    value = value.substring(0, 6);
+                }
+                
+                // Adiciona os hífens automaticamente
+                let formatted = '';
+                for (let i = 0; i < value.length; i++) {
+                    if (i === 2 || i === 4) {
+                        formatted += '-';
+                    }
+                    formatted += value[i];
+                }
+                
+                e.target.value = formatted;
+                
+                // Submeter quando tiver 6 caracteres ou estiver vazio
+                if (value.length === 6 || value.length === 0) {
+                    document.getElementById('filterForm').submit();
+                }
+            });
+        }
+    });
+
+    // Função para limpar todos os filtros
+    function clearFilters() {
+        const dropdowns = document.querySelectorAll('.filter-dropdown');
+        const telefoneInput = document.getElementById('telefoneInput');
+        const matriculaInput = document.getElementById('matriculaInput');
+        
+        dropdowns.forEach(function(dropdown) {
+            dropdown.value = '';
+        });
+        
+        if (telefoneInput) telefoneInput.value = '';
+        if (matriculaInput) matriculaInput.value = '';
+        
+        document.getElementById('filterForm').submit();
+    }
+</script>

@@ -22,45 +22,53 @@ namespace FluvAuto.Controllers
 
         // GET: FuncionariosMarcacoes
         [Authorize]
-        public async Task<IActionResult> Index(string searchString, string searchField)
+        public async Task<IActionResult> Index(string? nomeCliente, string? nomeFuncionario, string? telefone, string? matricula, string? servico)
         {
             if (User.IsInRole("admin") || User.IsInRole("funcionario"))
             {
-                var servicosQuery = _bd.FuncionariosMarcacoes
+                IQueryable<FuncionariosMarcacoes> servicosQuery = _bd.FuncionariosMarcacoes
                     .Include(f => f.Funcionario)
                     .Include(f => f.Marcacao)
-                        .ThenInclude(m => m.Viatura)
+                        .ThenInclude(m => m!.Viatura)
                             .ThenInclude(v => v!.Cliente);
                 
-                if (!string.IsNullOrEmpty(searchString))
+                // Aplicar filtros se fornecidos
+                if (!string.IsNullOrEmpty(nomeCliente))
                 {
-                    IQueryable<FuncionariosMarcacoes> filtrados = servicosQuery;
-                    switch (searchField)
-                    {
-                        case "nome_funcionario":
-                            filtrados = filtrados.Where(fm => fm.Funcionario != null && fm.Funcionario.Nome != null && 
-                                fm.Funcionario.Nome.ToLower().Contains(searchString.ToLower()));
-                            break;
-                        case "matricula":
-                            filtrados = filtrados.Where(fm => fm.Marcacao != null && fm.Marcacao.Viatura != null && 
-                                fm.Marcacao.Viatura.Matricula != null && fm.Marcacao.Viatura.Matricula.ToLower().Contains(searchString.ToLower()));
-                            break;
-                        case "telefone":
-                            filtrados = filtrados.Where(fm => fm.Marcacao != null && fm.Marcacao.Viatura != null && 
-                                fm.Marcacao.Viatura.Cliente != null && fm.Marcacao.Viatura.Cliente.Telefone != null && 
-                                fm.Marcacao.Viatura.Cliente.Telefone.Contains(searchString));
-                            break;
-                        case "servico":
-                            filtrados = filtrados.Where(fm => fm.Marcacao != null && fm.Marcacao.Servico != null && 
-                                fm.Marcacao.Servico.ToLower().Contains(searchString.ToLower()));
-                            break;
-                        default:
-                            filtrados = filtrados.Where(fm => fm.Marcacao != null && fm.Marcacao.Viatura != null && 
-                                fm.Marcacao.Viatura.Cliente != null && fm.Marcacao.Viatura.Cliente.Nome.ToLower().Contains(searchString.ToLower()));
-                            break;
-                    }
-                    return View(await filtrados.ToListAsync());
+                    servicosQuery = servicosQuery.Where(fm => fm.Marcacao != null && fm.Marcacao.Viatura != null && 
+                        fm.Marcacao.Viatura.Cliente != null && fm.Marcacao.Viatura.Cliente.Nome != null &&
+                        fm.Marcacao.Viatura.Cliente.Nome.ToLower().Contains(nomeCliente.ToLower()));
                 }
+                
+                if (!string.IsNullOrEmpty(nomeFuncionario))
+                {
+                    servicosQuery = servicosQuery.Where(fm => fm.Funcionario != null && fm.Funcionario.Nome != null && 
+                        fm.Funcionario.Nome.ToLower().Contains(nomeFuncionario.ToLower()));
+                }
+                
+                if (!string.IsNullOrEmpty(telefone))
+                {
+                    servicosQuery = servicosQuery.Where(fm => fm.Marcacao != null && fm.Marcacao.Viatura != null && 
+                        fm.Marcacao.Viatura.Cliente != null && fm.Marcacao.Viatura.Cliente.Telefone != null && 
+                        fm.Marcacao.Viatura.Cliente.Telefone.Contains(telefone));
+                }
+                
+                if (!string.IsNullOrEmpty(matricula))
+                {
+                    servicosQuery = servicosQuery.Where(fm => fm.Marcacao != null && fm.Marcacao.Viatura != null && 
+                        fm.Marcacao.Viatura.Matricula != null && fm.Marcacao.Viatura.Matricula.ToLower().Contains(matricula.ToLower()));
+                }
+                
+                if (!string.IsNullOrEmpty(servico))
+                {
+                    servicosQuery = servicosQuery.Where(fm => fm.Marcacao != null && fm.Marcacao.Servico != null && 
+                        fm.Marcacao.Servico.ToLower().Contains(servico.ToLower()));
+                }
+                
+                // Preparar dados para as dropdowns
+                ViewBag.NomesClientes = await _bd.Clientes.Select(c => c.Nome).Distinct().OrderBy(n => n).ToListAsync();
+                ViewBag.NomesFuncionarios = await _bd.Funcionarios.Select(f => f.Nome).Distinct().OrderBy(n => n).ToListAsync();
+                ViewBag.Servicos = await _bd.Marcacoes.Where(m => !string.IsNullOrEmpty(m.Servico)).Select(m => m.Servico).Distinct().OrderBy(s => s).ToListAsync();
                 
                 return View(await servicosQuery.ToListAsync());
             }
@@ -72,7 +80,7 @@ namespace FluvAuto.Controllers
             var marcacoesCliente = _bd.FuncionariosMarcacoes
                 .Include(f => f.Funcionario)
                 .Include(f => f.Marcacao)
-                    .ThenInclude(m => m.Viatura)
+                    .ThenInclude(m => m!.Viatura)
                         .ThenInclude(v => v!.Cliente)
                 .Where(fm => fm.Marcacao != null && viaturasIds.Contains(fm.Marcacao.ViaturaFK));
             return View(await marcacoesCliente.ToListAsync());
@@ -90,8 +98,8 @@ namespace FluvAuto.Controllers
             var funcionariosMarcacoes = await _bd.FuncionariosMarcacoes
                 .Include(f => f.Funcionario)
                 .Include(f => f.Marcacao)
-                    .ThenInclude(m => m.Viatura)
-                        .ThenInclude(v => v.Cliente)
+                    .ThenInclude(m => m!.Viatura)
+                        .ThenInclude(v => v!.Cliente)
                 .FirstOrDefaultAsync(m => m.MarcacaoFK == marcacaoId && m.FuncionarioFK == funcionarioId);
 
             if (funcionariosMarcacoes == null)
@@ -150,8 +158,8 @@ namespace FluvAuto.Controllers
 
             var funcionariosMarcacoes = await _bd.FuncionariosMarcacoes
                 .Include(f => f.Marcacao)
-                    .ThenInclude(m => m.Viatura)
-                        .ThenInclude(v => v.Cliente)
+                    .ThenInclude(m => m!.Viatura)
+                        .ThenInclude(v => v!.Cliente)
                 .Include(f => f.Funcionario)
                 .FirstOrDefaultAsync(m => m.MarcacaoFK == marcacaoId && m.FuncionarioFK == funcionarioId);
 
@@ -227,8 +235,8 @@ namespace FluvAuto.Controllers
             // Se chegou aqui, houve erro - recarregar a view com os dados necessários
             var funcionariosMarcacoes = await _bd.FuncionariosMarcacoes
                 .Include(f => f.Marcacao)
-                    .ThenInclude(m => m.Viatura)
-                        .ThenInclude(v => v.Cliente)
+                    .ThenInclude(m => m!.Viatura)
+                        .ThenInclude(v => v!.Cliente)
                 .Include(f => f.Funcionario)
                 .FirstOrDefaultAsync(m => m.MarcacaoFK == marcacaoId && m.FuncionarioFK == funcionarioId);
 
