@@ -28,16 +28,16 @@
             @Html.DisplayFor(model => model.DataInicioServico)
         </dd>
         <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Marcacao)
+            Marcação
         </dt>
         <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Marcacao.Servico)
+            @(Model.Marcacao?.Servico ?? "-")
         </dd>
         <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Funcionario)
+            Funcionário
         </dt>
         <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Funcionario.Email)
+            @(Model.Funcionario?.Email ?? "-")
         </dd>
         <dt class = "col-sm-2">
             Viatura
