@@ -76,17 +76,15 @@ namespace FluvAuto.Areas.Identity.Pages.Account
         /// </summary>
         public class InputModel
         {
-
+            [Required(ErrorMessage = "Os dados do cliente são obrigatórios")]
             public Cliente Cliente { get; set; } = new Cliente();
-
-
 
             /// <summary>
             ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
             ///     directly from your code. This API may change or be removed in future releases.
             /// </summary>
-            [Required]
-            [EmailAddress]
+            [Required(ErrorMessage = "O {0} é de preenchimento obrigatório")]
+            [EmailAddress(ErrorMessage = "Introduza um {0} válido")]
             [Display(Name = "Email")]
             public string Email { get; set; }
 
@@ -94,8 +92,10 @@ namespace FluvAuto.Areas.Identity.Pages.Account
             ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
             ///     directly from your code. This API may change or be removed in future releases.
             /// </summary>
-            [Required]
-            [StringLength(100, ErrorMessage = "The {0} must be at least {2} and at max {1} characters long.", MinimumLength = 6)]
+            [Required(ErrorMessage = "A {0} é de preenchimento obrigatório")]
+            [StringLength(100, ErrorMessage = "A {0} deve ter entre {2} e {1} caracteres.", MinimumLength = 6)]
+            [RegularExpression(@"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^\da-zA-Z]).{6,}$", 
+                ErrorMessage = "A password deve conter pelo menos 6 caracteres e: 1 letra minúscula, 1 maiúscula, 1 número e 1 caracter especial")]
             [DataType(DataType.Password)]
             [Display(Name = "Password")]
             public string Password { get; set; }
@@ -105,8 +105,8 @@ namespace FluvAuto.Areas.Identity.Pages.Account
             ///     directly from your code. This API may change or be removed in future releases.
             /// </summary>
             [DataType(DataType.Password)]
-            [Display(Name = "Confirm password")]
-            [Compare("Password", ErrorMessage = "The password and confirmation password do not match.")]
+            [Display(Name = "Confirmar Password")]
+            [Compare("Password", ErrorMessage = "A password e a confirmação da password não coincidem.")]
             public string ConfirmPassword { get; set; }
         }
 
@@ -121,6 +121,26 @@ namespace FluvAuto.Areas.Identity.Pages.Account
         {
             returnUrl ??= Url.Content("~/");
             ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
+            
+            // Validar o modelo Cliente manualmente para garantir que as validações são aplicadas
+            if (Input.Cliente != null)
+            {
+                var validationContext = new ValidationContext(Input.Cliente);
+                var validationResults = new List<ValidationResult>();
+                bool isClienteValid = Validator.TryValidateObject(Input.Cliente, validationContext, validationResults, true);
+                
+                if (!isClienteValid)
+                {
+                    foreach (var validationResult in validationResults)
+                    {
+                        foreach (var memberName in validationResult.MemberNames)
+                        {
+                            ModelState.AddModelError($"Input.Cliente.{memberName}", validationResult.ErrorMessage);
+                        }
+                    }
+                }
+            }
+            
             if (ModelState.IsValid)
             {
                 var user = CreateUser();

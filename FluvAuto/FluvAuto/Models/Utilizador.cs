@@ -57,7 +57,7 @@ namespace FluvAuto.Models
         /// </summary>
         [Display(Name = "Código Postal (opcional)")]
         [StringLength(50)]
-        [RegularExpression("[1-9][0-9]{3}-[0-9]{3} [A-Za-z ]+", ErrorMessage = "No {0} só são aceites algarismos e letras inglesas.")]
+        [RegularExpression("[1-9][0-9]{3}-[0-9]{3} [A-Za-z ]+", ErrorMessage = "Formato exemplo de Código Postal: 1000-001 Lisboa")]
         public string? CodPostal { get; set; }
         /* exemplo de exp. regulares sobre o Código Postal
          * [1-9][0-9]{3}-[0-9]{3} [A-Za-z ]+  --> Portugal
