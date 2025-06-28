@@ -1,5 +1,5 @@
 ﻿@page "/Identity/Account/RegisterFuncionario"
-@model RegisterFModel
+@model FluvAuto.Areas.Identity.Pages.Account.RegisterFModel
 @{
     ViewData["Title"] = "Registar Funcionário";
 }
@@ -15,25 +15,21 @@
             <hr />
             <div class="form-floating mb-3">
                 <input asp-for="Input.Funcionario.Nome" class="form-control" autocomplete="name" aria-required="true"
-                   
                     placeholder="Nome completo" />
                 <label asp-for="Input.Funcionario.Nome"></label>
                 <span asp-validation-for="Input.Funcionario.Nome" class="text-danger"></span>
             </div>
             <div class="form-floating mb-3">
-                   
                 <input asp-for="Input.Email" class="form-control" autocomplete="email" aria-required="true"
                     placeholder="name@example.com" />
                 <label asp-for="Input.Email"></label>
                 <span asp-validation-for="Input.Email" class="text-danger"></span>
             </div>
-                   
             <div class="form-floating mb-3">
                 <input asp-for="Input.Password" class="form-control" autocomplete="new-password" aria-required="true"
                     placeholder="Password" />
                 <label asp-for="Input.Password"></label>
                 <span asp-validation-for="Input.Password" class="text-danger"></span>
-                   
             </div>
             <div class="form-floating mb-3">
                 <input asp-for="Input.ConfirmPassword" class="form-control" autocomplete="new-password"
@@ -42,31 +38,26 @@
                 <span asp-validation-for="Input.ConfirmPassword" class="text-danger"></span>
             </div>
         </div>
-                   
         <div class="col-md-6">
             <hr />
             <div class="form-floating mb-3">
                 <input asp-for="Input.Funcionario.Telefone" class="form-control" autocomplete="tel" aria-required="true"
                     placeholder="Telefone" />
-                   
                 <label asp-for="Input.Funcionario.Telefone"></label>
                 <span asp-validation-for="Input.Funcionario.Telefone" class="text-danger"></span>
             </div>
             <div class="form-floating mb-3">
                 <input asp-for="Input.Funcionario.Morada" class="form-control" autocomplete="street-address"
-                   
                     aria-required="true" placeholder="Morada" />
                 <label asp-for="Input.Funcionario.Morada"></label>
                 <span asp-validation-for="Input.Funcionario.Morada" class="text-danger"></span>
             </div>
             <div class="form-floating mb-3">
-                   
                 <input asp-for="Input.Funcionario.CodPostal" class="form-control" autocomplete="postal-code"
                     aria-required="true" placeholder="Código Postal" />
                 <label asp-for="Input.Funcionario.CodPostal"></label>
                 <span asp-validation-for="Input.Funcionario.CodPostal" class="text-danger"></span>
             </div>
-                   
             <div class="form-floating mb-3">
                 <input asp-for="Input.Funcionario.Funcao" class="form-control" autocomplete="off" aria-required="true"
                     placeholder="Função" />
