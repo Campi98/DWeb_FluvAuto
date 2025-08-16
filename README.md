@@ -1,10 +1,11 @@
-# FluvAuto - Sistema de Gestão Oficina Automóvel - [English Version here](README.en.md)
+# FluvAuto - Sistema de Gestão Oficina Automóvel
 
 [![.NET](https://img.shields.io/badge/.NET-8.0-blue.svg)](https://dotnet.microsoft.com/)
 [![ASP.NET Core](https://img.shields.io/badge/ASP.NET%20Core-8.0-purple.svg)](https://dotnet.microsoft.com/apps/aspnet)
 [![Entity Framework](https://img.shields.io/badge/Entity%20Framework-Core-orange.svg)](https://docs.microsoft.com/en-us/ef/)
 [![Bootstrap](https://img.shields.io/badge/Bootstrap-5.x-purple.svg)](https://getbootstrap.com/)
 
+[English Version](README.en.md)
 ## Descrição
 
 **FluvAuto** é um sistema web para gestão de oficinas automóveis, desenvolvido em **ASP.NET Core 8.0** com **Entity Framework Core**. O sistema permite gerir clientes, funcionários, viaturas, marcações de serviços e acompanhar o fluxo de trabalho da oficina.
@@ -68,3 +69,19 @@ dotnet run    (ou clicar no run do VS2022)
 | Admin | admin@admin.com | Admin12345! | Acesso total |
 | Funcionário | maria@email.com | Password123! | Gestão de serviços |
 | Cliente | joao@email.com | Password123! | Visualização própria |
+
+## Prints
+
+| Descrição | Imagem |
+|-----------|--------|
+| Diagrama Entidade-Relacionamento | ![DER](imgReadMe/1_dere.png) |
+| Mockup Página Inicial | ![Mockup Página Inicial](imgReadMe/2_mockup_landingPage.png) |
+| Mockup Página Utilizador | ![Mockup Página Utilizador](imgReadMe/3_mockup_userPage.png) |
+| Mockup Página Admin | ![Mockup Página Admin](imgReadMe/4_mockup_adminPage.png) |
+| Mockup Login & Registo | ![Mockup Login & Registo](imgReadMe/5_mockup_loginRegisto.png) |
+| Página Inicial (Real) | ![Página Inicial](imgReadMe/6_landingPage.png) |
+| Página Sobre | ![Página Sobre](imgReadMe/7_about.png) |
+| Página Login | ![Página Login](imgReadMe/8_login.png) |
+| Vista Tabelas Admin | ![Vista Tabelas Admin](imgReadMe/9_vistaTabelasAdmin.png) |
+| Página Utilizador | ![Página Utilizador](imgReadMe/10_userPage.png) |
+| Nova Marcação | ![Nova Marcação](imgReadMe/11_novaMarcacao.png) |

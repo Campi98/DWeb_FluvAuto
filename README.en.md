@@ -1,9 +1,11 @@
-# FluvAuto - Auto Workshop Management System - [Versão PT aqui](README.md)
+# FluvAuto - Auto Workshop Management System
 
 [![.NET](https://img.shields.io/badge/.NET-8.0-blue.svg)](https://dotnet.microsoft.com/)
 [![ASP.NET Core](https://img.shields.io/badge/ASP.NET%20Core-8.0-purple.svg)](https://dotnet.microsoft.com/apps/aspnet)
 [![Entity Framework](https://img.shields.io/badge/Entity%20Framework-Core-orange.svg)](https://docs.microsoft.com/en-us/ef/)
 [![Bootstrap](https://img.shields.io/badge/Bootstrap-5.x-purple.svg)](https://getbootstrap.com/)
+
+[Versão PT](README.md)
 
 ## Description
 
@@ -66,3 +68,19 @@ dotnet run    (or click Run in VS2022)
 | Admin | admin@admin.com | Admin12345! | Full access |
 | Employee | maria@email.com | Password123! | Service management |
 | Customer | joao@email.com | Password123! | View own data |
+
+## Screenshots
+
+| Description | Image |
+|-------------|-------|
+| ER Diagram | ![ER Diagram](imgReadMe/1_dere.png) |
+| Landing Page Mockup | ![Landing Page Mockup](imgReadMe/2_mockup_landingPage.png) |
+| User Page Mockup | ![User Page Mockup](imgReadMe/3_mockup_userPage.png) |
+| Admin Page Mockup | ![Admin Page Mockup](imgReadMe/4_mockup_adminPage.png) |
+| Login & Register Mockup | ![Login & Register Mockup](imgReadMe/5_mockup_loginRegisto.png) |
+| Landing Page (Real) | ![Landing Page](imgReadMe/6_landingPage.png) |
+| About Page | ![About Page](imgReadMe/7_about.png) |
+| Login Page | ![Login Page](imgReadMe/8_login.png) |
+| Admin Tables View | ![Admin Tables View](imgReadMe/9_vistaTabelasAdmin.png) |
+| User Page | ![User Page](imgReadMe/10_userPage.png) |
+| New Appointment | ![New Appointment](imgReadMe/11_novaMarcacao.png) |
